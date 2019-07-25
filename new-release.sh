@@ -47,7 +47,7 @@ function generateNewReleaseBranch () {
     git checkout -b "$branchName"
 
     # generate app
-    npx react-native init "$AppName" --version "$newRelease"
+    git clone --branch "$newRelease" --depth 1 git@github.com:react-boilerplate/react-boilerplate.git "$AppName" 
 
     # commit and push branch
     git add "$AppName"
