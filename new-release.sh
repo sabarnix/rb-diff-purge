@@ -5,7 +5,7 @@ set -euxo pipefail
 ErrorReleaseExists=2
 ErrorReleaseArgMissing=3
 
-AppName=RnDiffApp
+AppName=RbDiffApp
 AppBaseBranch=app-base
 ReleasesFile=RELEASES
 ReadmeFile=README.md
