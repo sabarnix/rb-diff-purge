@@ -1,0 +1,422 @@
+diff --git a/RbDiffApp/.htaccess b/RbDiffApp/.htaccess
+deleted file mode 100644
+index 5204b4b..0000000
+--- a/RbDiffApp/.htaccess
++++ /dev/null
+@@ -1,44 +0,0 @@
+-<ifModule mod_rewrite.c>
+-
+-
+-  #######################################################################
+-  # GENERAL                                                             #
+-  #######################################################################
+-
+-  # Make apache follow sym links to files
+-  Options +FollowSymLinks
+-  # If somebody opens a folder, hide all files from the resulting folder list
+-  IndexIgnore */*
+-
+-
+-  #######################################################################
+-  # REWRITING                                                           #
+-  #######################################################################
+-
+-  # Enable rewriting
+-  RewriteEngine On
+-
+-  # If its not HTTPS
+-  RewriteCond %{HTTPS} off
+-
+-  # Comment out the RewriteCond above, and uncomment the RewriteCond below if you're using a load balancer (e.g. CloudFlare) for SSL
+-  # RewriteCond %{HTTP:X-Forwarded-Proto} !https
+-
+-  # Redirect to the same URL with https://, ignoring all further rules if this one is in effect
+-  RewriteRule ^(.*) https://%{HTTP_HOST}/$1 [R,L]
+-
+-  # If we get to here, it means we are on https://
+-  
+-  # If the file with the specified name in the browser doesn't exist
+-  RewriteCond %{REQUEST_FILENAME} !-f
+-
+-  # and the directory with the specified name in the browser doesn't exist
+-  RewriteCond %{REQUEST_FILENAME} !-d
+-
+-  # and we are not opening the root already (otherwise we get a redirect loop)
+-  RewriteCond %{REQUEST_FILENAME} !\/$
+-
+-  # Rewrite all requests to the root
+-  RewriteRule ^(.*) /
+-
+-</ifModule>
+diff --git a/RbDiffApp/README.md b/RbDiffApp/README.md
+index 1ce8293..0d9337c 100644
+--- a/RbDiffApp/README.md
++++ b/RbDiffApp/README.md
+@@ -42,16 +42,6 @@ Quick setup for new performance orientated, offline–first React.js application
+ 
+ 4. Profit!
+ 
+-### Server Configuration
+-
+-#### Apache
+-
+-This boilerplate includes a `.htaccess` file that does two things:
+-
+-1. Redirect all traffic to HTTPS because ServiceWorker only works for encrypted traffic
+-
+-2. Rewrite all pages (e.g. yourdomain.com/subpage) to the `index.html` to let `react-router` take care of presenting the correct page
+-
+ ## CSS
+ 
+ The CSS modules found in the `css` subfolders all get imported into the `main.css` file, which get inlined and minified into the `compiled.css` file. To add/change the styling, either write the CSS into the appropriate module or make a new one and `@import` it in the `main.css` file at the appropriate place.
+@@ -100,8 +90,6 @@ The folder structure of the JS files reflects how [Redux](https://github.com/gae
+ 
+ * `components`: The main JS folder. All your React components should be in this folder, for big projects they might be grouped into seperate subfolders. E.g. a navigation component `Nav.react.js`
+ 
+-* `components/pages`: Actual pages (routes) users can visit.
+-
+ * `constants`: Action constants need to be defined in this/these utility module(s)
+ 
+ * `reducers`: Reducers manage the state of an app, basically a simplified implementation of Stores in Flux. For an introduction to reducers, watch [this talk](https://www.youtube.com/watch?v=xsSnOQynTHs) by @gaearon.
+@@ -162,4 +150,4 @@ Then webpack will correctly transfer the image to the build folder.
+ 
+ ## License
+ 
+-This project is licensed under the MIT license, Copyright (c) 2015 Maximilian Stoiber. For more information see `LICENSE.md`.
++This project is licensed under the MIT license, Copyright (c) 2015 Maximilian Stoiber. For more information see `LICENSE.md`.
+\ No newline at end of file
+diff --git a/RbDiffApp/js/actions/AppActions.js b/RbDiffApp/js/actions/AppActions.js
+index 2fef902..a9200dc 100644
+--- a/RbDiffApp/js/actions/AppActions.js
++++ b/RbDiffApp/js/actions/AppActions.js
+@@ -1,52 +1,9 @@
+-/*
+- * Actions change things in your application
+- * Since this boilerplate uses a uni-directional data flow, specifically redux,
+- * we have these actions which are the only way your application interacts with
+- * your appliction state. This guarantees that your state is up to date and nobody
+- * messes it up weirdly somewhere.
+- *
+- * To add a new Action:
+- * 1) Import your constant
+- * 2) Add a function like this:
+- *    export function yourAction(var) {
+- *        return { type: YOUR_ACTION_CONSTANT, var: var }
+- *    }
+- * 3) (optional) Add an async function like this:
+- *    export function asyncYourAction(var) {
+- *        return function(dispatch) {
+- *             // Do async stuff here
+- *             return dispatch(yourAction(var));
+- *        }
+- *    }
+- *
+- *    If you add an async function, remove the export from the function
+- *    created in the second step
+- */
+-
+ import { CHANGE_OWNER_NAME, CHANGE_PROJECT_NAME } from '../constants/AppConstants';
+ 
+-export function asyncChangeProjectName(name) {
+-  return function(dispatch) {
+-    // You can do async stuff here!
+-    // API fetching, Animations,...
+-    // For more information as to how and why you would do this, check https://github.com/gaearon/redux-thunk
+-    return dispatch(changeProjectName(name));
+-  }
+-}
+-
+-export function asyncChangeOwnerName(name) {
+-  return function(dispatch) {
+-    // You can do async stuff here!
+-    // API fetching, Animations,...
+-    // For more information as to how and why you would do this, check https://github.com/gaearon/redux-thunk
+-    return dispatch(changeOwnerName(name));
+-  }
+-}
+-
+-function changeProjectName(name) {
++export function changeProjectName(name) {
+   return { type: CHANGE_PROJECT_NAME, name };
+ }
+ 
+-function changeOwnerName(name) {
++export function changeOwnerName(name) {
+   return { type: CHANGE_OWNER_NAME, name };
+ }
+diff --git a/RbDiffApp/js/app.js b/RbDiffApp/js/app.js
+index 976c0ce..6f67123 100644
+--- a/RbDiffApp/js/app.js
++++ b/RbDiffApp/js/app.js
+@@ -1,9 +1,8 @@
+ import 'file?name=[name].[ext]!../serviceworker.js';
+ import 'file?name=[name].[ext]!../serviceworker-cache-polyfill.js';
+ import 'file?name=[name].[ext]!../manifest.json';
+-import FontFaceObserver from 'fontfaceobserver';
++import 'fontfaceobserver/fontfaceobserver.js';
+ 
+-// Check for ServiceWorker support before trying to install it
+ if ('serviceWorker' in navigator) {
+   navigator.serviceWorker.register('/serviceworker.js').then(() => {
+     // Registration was successful
+@@ -24,39 +23,26 @@ openSansObserver.check().then(() => {
+   document.body.classList.remove('js-open-sans-loaded');
+ });
+ 
+-// Import all the third party stuff
+ import React from 'react';
+ import ReactDOM from 'react-dom';
+-import { createStore, applyMiddleware } from 'redux';
+-import thunk from 'redux-thunk';
++import { createStore } from 'redux';
+ import { Provider } from 'react-redux';
+ import { homeReducer } from './reducers/reducers';
+ import { Router, Route } from 'react-router';
+ import createHistory from 'history/lib/createBrowserHistory';
+ 
+-// Import the custom components
+-import HomePage from './components/pages/HomePage.react';
+-import ReadmePage from './components/pages/ReadmePage.react';
+-import App from './components/App.react';
++import HomePage from './components/HomePage.react';
++import ReadmePage from './components/ReadmePage.react';
+ 
+-// Import the CSS file, which webpack transfers to the build folder
+ import '../css/main.css';
+ 
+-// Creates the Redux reducer with the redux-thunk middleware, which allows us
+-// to do asynchronous stuff in the actions
+-const createStoreWithMiddleware = applyMiddleware(thunk)(createStore);
+-const store = createStoreWithMiddleware(homeReducer);
++const store = createStore(homeReducer);
+ 
+-// Provider: Redux
+-// Router: redux-router
+-// HomePage/ReadmePage: Custom Components, see js/components folder
+ ReactDOM.render(
+   <Provider store={store}>
+     <Router history={createHistory()}>
+-      <Route component={App}>
+-        <Route path="/" component={HomePage} />
+-        <Route path="/readme" component={ReadmePage} />
+-      </Route>
++      <Route path="/" component={HomePage} />
++      <Route path="/readme" component={ReadmePage} />
+     </Router>
+   </Provider>,
+   document.getElementById('app')
+diff --git a/RbDiffApp/js/components/App.react.js b/RbDiffApp/js/components/App.react.js
+deleted file mode 100644
+index 000ed8c..0000000
+--- a/RbDiffApp/js/components/App.react.js
++++ /dev/null
+@@ -1,34 +0,0 @@
+-/**
+- *
+- * App.react.js
+- *
+- * This component is the skeleton around the actual pages, and should only
+- * contain code that should be seen on all pages. (e.g. navigation bar)
+- */
+-
+-import React, { Component } from 'react';
+-import { connect } from 'react-redux';
+-import Logo from '../../img/logo.png';
+-
+-class App extends Component {
+-  render() {
+-    return (
+-      <div className="wrapper">
+-        <img className="logo" src={Logo} />
+-        { this.props.children }
+-      </div>
+-    );
+-  }
+-}
+-
+-// REDUX STUFF
+-
+-// Which props do we want to inject, given the global state?
+-function select(state) {
+-  return {
+-    data: state
+-  };
+-}
+-
+-// Wrap the component to inject dispatch and state into it
+-export default connect(select)(App);
+diff --git a/RbDiffApp/js/components/pages/HomePage.react.js b/RbDiffApp/js/components/HomePage.react.js
+similarity index 60%
+rename from RbDiffApp/js/components/pages/HomePage.react.js
+rename to RbDiffApp/js/components/HomePage.react.js
+index 6254eb5..fda5874 100644
+--- a/RbDiffApp/js/components/pages/HomePage.react.js
++++ b/RbDiffApp/js/components/HomePage.react.js
+@@ -1,26 +1,22 @@
+-/*
+- * HomePage
+- * This is the first thing users see of our App
+- */
+-
+-import { asyncChangeProjectName, asyncChangeOwnerName } from '../../actions/AppActions';
++import { changeProjectName, changeOwnerName } from '../actions/AppActions';
+ import React, { Component } from 'react';
+ import { connect } from 'react-redux';
+ import { Link } from 'react-router';
++import Logo from '../../img/logo.png';
+ 
+ class HomePage extends Component {
+ 	render() {
+-    const dispatch = this.props.dispatch;
+-    const { projectName, ownerName } = this.props.data;
++    const { dispatch, projectName, ownerName } = this.props;
+     return (
+-			<div>
++			<div className="wrapper">
++        <img className="logo" src={Logo} />
+ 				<h1>Hello World!</h1>
+         <h2>This is the demo for the <span className="home__text--red">{ projectName }</span> by <a href={'https://twitter.com/' + ownerName} >@{ ownerName }</a></h2>
+         <label className="home__label">Change to your project name:
+-				  <input className="home__input" type="text" onChange={(evt) => { dispatch(asyncChangeProjectName(evt.target.value)); }} defaultValue="React.js Boilerplate" value={projectName} />
++				  <input className="home__input" type="text" onChange={(evt) => { dispatch(changeProjectName(evt.target.value)); }} defaultValue="React.js Boilerplate" placeholder={projectName} />
+         </label>
+         <label className="home__label">Change to your name:
+-          <input className="home__input" type="text" onChange={(evt) => { dispatch(asyncChangeOwnerName(evt.target.value)); }} defaultValue="mxstbr" value={ownerName} />
++          <input className="home__input" type="text" onChange={(evt) => { dispatch(changeOwnerName(evt.target.value)); }} defaultValue="mxstbr" placeholder={projectName} />
+         </label>
+         <Link className="btn" to="/readme">Setup</Link>
+ 			</div>
+@@ -28,12 +24,12 @@ class HomePage extends Component {
+   }
+ }
+ 
+-// REDUX STUFF
+-
+ // Which props do we want to inject, given the global state?
++// Note: use https://github.com/faassen/reselect for better performance.
+ function select(state) {
+   return {
+-    data: state
++    ownerName: state.ownerName,
++    projectName: state.projectName
+   };
+ }
+ 
+diff --git a/RbDiffApp/js/components/pages/ReadmePage.react.js b/RbDiffApp/js/components/ReadmePage.react.js
+similarity index 86%
+rename from RbDiffApp/js/components/pages/ReadmePage.react.js
+rename to RbDiffApp/js/components/ReadmePage.react.js
+index a603731..8efaf3a 100644
+--- a/RbDiffApp/js/components/pages/ReadmePage.react.js
++++ b/RbDiffApp/js/components/ReadmePage.react.js
+@@ -1,16 +1,12 @@
+-/*
+- * ReadmePage
+- *
+- * This is the page users see when they click the "Setup" button on the HomePage
+- */
+-
+ import React, { Component} from 'react';
+ import { Link } from 'react-router';
++import Logo from '../../img/logo.png';
+ 
+ export default class AboutPage extends Component {
+ 	render() {
+     return (
+-    	<div>
++    		<div className="wrapper">
++    			<img className="logo" src={Logo} />
+ 				<h2>Further Setup</h2>
+ 				<p>Assuming you have already cloned the repo and ran all the commands from the README (otherwise you would not be here), these are the further steps:</p>
+ 
+diff --git a/RbDiffApp/js/constants/AppConstants.js b/RbDiffApp/js/constants/AppConstants.js
+index 4deae2f..ae94da7 100644
+--- a/RbDiffApp/js/constants/AppConstants.js
++++ b/RbDiffApp/js/constants/AppConstants.js
+@@ -1,10 +1,2 @@
+-/*
+- * AppConstants
+- * These are the variables that determine what our central data store (reducer.js)
+- * changes in our state. When you add a new action, you have to add a new constant here
+- *
+- * Follow this format:
+- * export const YOUR_ACTION_CONSTANT = 'YOUR_ACTION_CONSTANT';
+- */
+ export const CHANGE_PROJECT_NAME = 'CHANGE_PROJECT_NAME';
+ export const CHANGE_OWNER_NAME = 'CHANGE_OWNER_NAME';
+diff --git a/RbDiffApp/js/reducers/reducers.js b/RbDiffApp/js/reducers/reducers.js
+index 98cef7f..5f5764c 100644
+--- a/RbDiffApp/js/reducers/reducers.js
++++ b/RbDiffApp/js/reducers/reducers.js
+@@ -1,15 +1,3 @@
+-/*
+- * The reducer takes care of our data
+- * Using actions, we can change our application state
+- * To add a new action, add it to the switch statement in the homeReducer function
+- *
+- * Example:
+- * case YOUR_ACTION_CONSTANT:
+- *   return assign({}, state, {
+- *       stateVariable: action.var
+- *   });
+- */
+-
+ import { CHANGE_OWNER_NAME, CHANGE_PROJECT_NAME } from '../constants/AppConstants';
+ const assign = Object.assign || require('object.assign');
+ 
+diff --git a/RbDiffApp/makewebpackconfig.js b/RbDiffApp/makewebpackconfig.js
+index 2d07b7b..b83e346 100644
+--- a/RbDiffApp/makewebpackconfig.js
++++ b/RbDiffApp/makewebpackconfig.js
+@@ -35,7 +35,9 @@ module.exports = function(options) {
+           minifyURLs: true
+         }
+       }),
+-      new AppCachePlugin()
++      new AppCachePlugin({
++        cache: ['index.html', 'js/bundle.js', 'serviceworker.js']
++      })
+     ];
+ 
+   // If app is in development
+@@ -49,8 +51,7 @@ module.exports = function(options) {
+     cssLoaders = ['style-loader', 'css-loader', 'postcss-loader'];
+     // Only plugin is the hot module replacement plugin
+     plugins = [
+-      new webpack.HotModuleReplacementPlugin(), // Make hot loading work
+-      new AppCachePlugin()
++      new webpack.HotModuleReplacementPlugin() // Make hot loading work
+     ]
+   }
+ 
+@@ -96,4 +97,4 @@ module.exports = function(options) {
+     stats: false, // Don't show stats in the console
+     progress: true
+   }
+-}
++}
+\ No newline at end of file
+diff --git a/RbDiffApp/package.json b/RbDiffApp/package.json
+index 04edd85..93ab765 100644
+--- a/RbDiffApp/package.json
++++ b/RbDiffApp/package.json
+@@ -1,16 +1,15 @@
+ {
+   "name": "reactjs-boilerplate",
+-  "version": "2.3.1",
++  "version": "2.2.1",
+   "description": "Quick setup for new React.js applications featuring Redux, hot–reloading, PostCSS, react-router and Mocha.",
+   "dependencies": {
+     "fontfaceobserver": "^1.5.1",
+-    "history": "1.13.1",
++    "history": "^1.13.1",
+     "react": "^0.14.2",
+     "react-dom": "^0.14.2",
+     "react-redux": "^4.0.0",
+     "react-router": "^1.0.0",
+-    "redux": "^3.0.0",
+-    "redux-thunk": "^1.0.0"
++    "redux": "^3.0.0"
+   },
+   "devDependencies": {
+     "appcache-webpack-plugin": "^1.2.0",

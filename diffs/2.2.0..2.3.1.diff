@@ -1,0 +1,632 @@
+diff --git a/RbDiffApp/.babelrc b/RbDiffApp/.babelrc
+index e5ddb18..3d53440 100644
+--- a/RbDiffApp/.babelrc
++++ b/RbDiffApp/.babelrc
+@@ -1,18 +1,18 @@
+ {
+   "stage": 0,
+-  "plugins": [
+-    "react-transform"
+-  ],
+-  "extra": {
+-    // must be defined and be an array
+-    "react-transform": [{
+-      "target": "react-transform-webpack-hmr",
+-      // if you use React Native, pass "react-native" instead:
+-      "imports": ["react"],
+-      // this is important for Webpack HMR:
+-      "locals": ["module"]
+-    }]
+-    // note: you can put more transforms into array
+-    // this is just one of them!
++  "env": {
++    // only enable react-transform-hmr when process.env.NODE_ENV is not 'production'
++    "development": {
++      "plugins": ["react-transform"],
++      "extra": {
++        "react-transform": {
++          "transforms": [{
++            "transform": "react-transform-hmr",
++            "imports": ["react"],
++            "locals": ["module"]
++          }]
++        }
++      }
++    }
+   }
+ }
+\ No newline at end of file
+diff --git a/RbDiffApp/.htaccess b/RbDiffApp/.htaccess
+new file mode 100644
+index 0000000..5204b4b
+--- /dev/null
++++ b/RbDiffApp/.htaccess
+@@ -0,0 +1,44 @@
++<ifModule mod_rewrite.c>
++
++
++  #######################################################################
++  # GENERAL                                                             #
++  #######################################################################
++
++  # Make apache follow sym links to files
++  Options +FollowSymLinks
++  # If somebody opens a folder, hide all files from the resulting folder list
++  IndexIgnore */*
++
++
++  #######################################################################
++  # REWRITING                                                           #
++  #######################################################################
++
++  # Enable rewriting
++  RewriteEngine On
++
++  # If its not HTTPS
++  RewriteCond %{HTTPS} off
++
++  # Comment out the RewriteCond above, and uncomment the RewriteCond below if you're using a load balancer (e.g. CloudFlare) for SSL
++  # RewriteCond %{HTTP:X-Forwarded-Proto} !https
++
++  # Redirect to the same URL with https://, ignoring all further rules if this one is in effect
++  RewriteRule ^(.*) https://%{HTTP_HOST}/$1 [R,L]
++
++  # If we get to here, it means we are on https://
++  
++  # If the file with the specified name in the browser doesn't exist
++  RewriteCond %{REQUEST_FILENAME} !-f
++
++  # and the directory with the specified name in the browser doesn't exist
++  RewriteCond %{REQUEST_FILENAME} !-d
++
++  # and we are not opening the root already (otherwise we get a redirect loop)
++  RewriteCond %{REQUEST_FILENAME} !\/$
++
++  # Rewrite all requests to the root
++  RewriteRule ^(.*) /
++
++</ifModule>
+diff --git a/RbDiffApp/README.md b/RbDiffApp/README.md
+index 0d9337c..1ce8293 100644
+--- a/RbDiffApp/README.md
++++ b/RbDiffApp/README.md
+@@ -42,6 +42,16 @@ Quick setup for new performance orientated, offline–first React.js application
+ 
+ 4. Profit!
+ 
++### Server Configuration
++
++#### Apache
++
++This boilerplate includes a `.htaccess` file that does two things:
++
++1. Redirect all traffic to HTTPS because ServiceWorker only works for encrypted traffic
++
++2. Rewrite all pages (e.g. yourdomain.com/subpage) to the `index.html` to let `react-router` take care of presenting the correct page
++
+ ## CSS
+ 
+ The CSS modules found in the `css` subfolders all get imported into the `main.css` file, which get inlined and minified into the `compiled.css` file. To add/change the styling, either write the CSS into the appropriate module or make a new one and `@import` it in the `main.css` file at the appropriate place.
+@@ -90,6 +100,8 @@ The folder structure of the JS files reflects how [Redux](https://github.com/gae
+ 
+ * `components`: The main JS folder. All your React components should be in this folder, for big projects they might be grouped into seperate subfolders. E.g. a navigation component `Nav.react.js`
+ 
++* `components/pages`: Actual pages (routes) users can visit.
++
+ * `constants`: Action constants need to be defined in this/these utility module(s)
+ 
+ * `reducers`: Reducers manage the state of an app, basically a simplified implementation of Stores in Flux. For an introduction to reducers, watch [this talk](https://www.youtube.com/watch?v=xsSnOQynTHs) by @gaearon.
+@@ -150,4 +162,4 @@ Then webpack will correctly transfer the image to the build folder.
+ 
+ ## License
+ 
+-This project is licensed under the MIT license, Copyright (c) 2015 Maximilian Stoiber. For more information see `LICENSE.md`.
+\ No newline at end of file
++This project is licensed under the MIT license, Copyright (c) 2015 Maximilian Stoiber. For more information see `LICENSE.md`.
+diff --git a/RbDiffApp/js/actions/AppActions.js b/RbDiffApp/js/actions/AppActions.js
+index a9200dc..2fef902 100644
+--- a/RbDiffApp/js/actions/AppActions.js
++++ b/RbDiffApp/js/actions/AppActions.js
+@@ -1,9 +1,52 @@
++/*
++ * Actions change things in your application
++ * Since this boilerplate uses a uni-directional data flow, specifically redux,
++ * we have these actions which are the only way your application interacts with
++ * your appliction state. This guarantees that your state is up to date and nobody
++ * messes it up weirdly somewhere.
++ *
++ * To add a new Action:
++ * 1) Import your constant
++ * 2) Add a function like this:
++ *    export function yourAction(var) {
++ *        return { type: YOUR_ACTION_CONSTANT, var: var }
++ *    }
++ * 3) (optional) Add an async function like this:
++ *    export function asyncYourAction(var) {
++ *        return function(dispatch) {
++ *             // Do async stuff here
++ *             return dispatch(yourAction(var));
++ *        }
++ *    }
++ *
++ *    If you add an async function, remove the export from the function
++ *    created in the second step
++ */
++
+ import { CHANGE_OWNER_NAME, CHANGE_PROJECT_NAME } from '../constants/AppConstants';
+ 
+-export function changeProjectName(name) {
++export function asyncChangeProjectName(name) {
++  return function(dispatch) {
++    // You can do async stuff here!
++    // API fetching, Animations,...
++    // For more information as to how and why you would do this, check https://github.com/gaearon/redux-thunk
++    return dispatch(changeProjectName(name));
++  }
++}
++
++export function asyncChangeOwnerName(name) {
++  return function(dispatch) {
++    // You can do async stuff here!
++    // API fetching, Animations,...
++    // For more information as to how and why you would do this, check https://github.com/gaearon/redux-thunk
++    return dispatch(changeOwnerName(name));
++  }
++}
++
++function changeProjectName(name) {
+   return { type: CHANGE_PROJECT_NAME, name };
+ }
+ 
+-export function changeOwnerName(name) {
++function changeOwnerName(name) {
+   return { type: CHANGE_OWNER_NAME, name };
+ }
+diff --git a/RbDiffApp/js/app.js b/RbDiffApp/js/app.js
+index 2ec1a8f..976c0ce 100644
+--- a/RbDiffApp/js/app.js
++++ b/RbDiffApp/js/app.js
+@@ -1,7 +1,9 @@
+ import 'file?name=[name].[ext]!../serviceworker.js';
++import 'file?name=[name].[ext]!../serviceworker-cache-polyfill.js';
+ import 'file?name=[name].[ext]!../manifest.json';
+-import 'fontfaceobserver/fontfaceobserver.js';
++import FontFaceObserver from 'fontfaceobserver';
+ 
++// Check for ServiceWorker support before trying to install it
+ if ('serviceWorker' in navigator) {
+   navigator.serviceWorker.register('/serviceworker.js').then(() => {
+     // Registration was successful
+@@ -22,28 +24,40 @@ openSansObserver.check().then(() => {
+   document.body.classList.remove('js-open-sans-loaded');
+ });
+ 
++// Import all the third party stuff
+ import React from 'react';
+-import { createStore } from 'redux';
++import ReactDOM from 'react-dom';
++import { createStore, applyMiddleware } from 'redux';
++import thunk from 'redux-thunk';
+ import { Provider } from 'react-redux';
+ import { homeReducer } from './reducers/reducers';
+ import { Router, Route } from 'react-router';
+ import createHistory from 'history/lib/createBrowserHistory';
+ 
+-import HomePage from './components/HomePage.react';
+-import ReadmePage from './components/ReadmePage.react';
++// Import the custom components
++import HomePage from './components/pages/HomePage.react';
++import ReadmePage from './components/pages/ReadmePage.react';
++import App from './components/App.react';
+ 
++// Import the CSS file, which webpack transfers to the build folder
+ import '../css/main.css';
+ 
+-const store = createStore(homeReducer);
++// Creates the Redux reducer with the redux-thunk middleware, which allows us
++// to do asynchronous stuff in the actions
++const createStoreWithMiddleware = applyMiddleware(thunk)(createStore);
++const store = createStoreWithMiddleware(homeReducer);
+ 
+-React.render(
++// Provider: Redux
++// Router: redux-router
++// HomePage/ReadmePage: Custom Components, see js/components folder
++ReactDOM.render(
+   <Provider store={store}>
+-    {() =>
+-      <Router history={createHistory()}>
++    <Router history={createHistory()}>
++      <Route component={App}>
+         <Route path="/" component={HomePage} />
+         <Route path="/readme" component={ReadmePage} />
+-      </Router>
+-    }
++      </Route>
++    </Router>
+   </Provider>,
+   document.getElementById('app')
+ );
+diff --git a/RbDiffApp/js/components/App.react.js b/RbDiffApp/js/components/App.react.js
+new file mode 100644
+index 0000000..000ed8c
+--- /dev/null
++++ b/RbDiffApp/js/components/App.react.js
+@@ -0,0 +1,34 @@
++/**
++ *
++ * App.react.js
++ *
++ * This component is the skeleton around the actual pages, and should only
++ * contain code that should be seen on all pages. (e.g. navigation bar)
++ */
++
++import React, { Component } from 'react';
++import { connect } from 'react-redux';
++import Logo from '../../img/logo.png';
++
++class App extends Component {
++  render() {
++    return (
++      <div className="wrapper">
++        <img className="logo" src={Logo} />
++        { this.props.children }
++      </div>
++    );
++  }
++}
++
++// REDUX STUFF
++
++// Which props do we want to inject, given the global state?
++function select(state) {
++  return {
++    data: state
++  };
++}
++
++// Wrap the component to inject dispatch and state into it
++export default connect(select)(App);
+diff --git a/RbDiffApp/js/components/HomePage.react.js b/RbDiffApp/js/components/pages/HomePage.react.js
+similarity index 60%
+rename from RbDiffApp/js/components/HomePage.react.js
+rename to RbDiffApp/js/components/pages/HomePage.react.js
+index 62048d3..6254eb5 100644
+--- a/RbDiffApp/js/components/HomePage.react.js
++++ b/RbDiffApp/js/components/pages/HomePage.react.js
+@@ -1,21 +1,26 @@
+-import { changeProjectName, changeOwnerName } from '../actions/AppActions';
++/*
++ * HomePage
++ * This is the first thing users see of our App
++ */
++
++import { asyncChangeProjectName, asyncChangeOwnerName } from '../../actions/AppActions';
+ import React, { Component } from 'react';
+ import { connect } from 'react-redux';
+ import { Link } from 'react-router';
+ 
+ class HomePage extends Component {
+ 	render() {
+-    const { dispatch, projectName, ownerName } = this.props;
++    const dispatch = this.props.dispatch;
++    const { projectName, ownerName } = this.props.data;
+     return (
+-			<div className="wrapper">
+-        <img className="logo" src={require('../../img/logo.png')} />
++			<div>
+ 				<h1>Hello World!</h1>
+         <h2>This is the demo for the <span className="home__text--red">{ projectName }</span> by <a href={'https://twitter.com/' + ownerName} >@{ ownerName }</a></h2>
+         <label className="home__label">Change to your project name:
+-				  <input className="home__input" type="text" onChange={(evt) => { dispatch(changeProjectName(evt.target.value)); }} defaultValue="React.js Boilerplate" placeholder="React.js Boilerplate" />
++				  <input className="home__input" type="text" onChange={(evt) => { dispatch(asyncChangeProjectName(evt.target.value)); }} defaultValue="React.js Boilerplate" value={projectName} />
+         </label>
+         <label className="home__label">Change to your name:
+-          <input className="home__input" type="text" onChange={(evt) => { dispatch(changeOwnerName(evt.target.value)); }} defaultValue="mxstbr" placeholder="mxstbr" />
++          <input className="home__input" type="text" onChange={(evt) => { dispatch(asyncChangeOwnerName(evt.target.value)); }} defaultValue="mxstbr" value={ownerName} />
+         </label>
+         <Link className="btn" to="/readme">Setup</Link>
+ 			</div>
+@@ -23,12 +28,12 @@ class HomePage extends Component {
+   }
+ }
+ 
++// REDUX STUFF
++
+ // Which props do we want to inject, given the global state?
+-// Note: use https://github.com/faassen/reselect for better performance.
+ function select(state) {
+   return {
+-    ownerName: state.ownerName,
+-    projectName: state.projectName
++    data: state
+   };
+ }
+ 
+diff --git a/RbDiffApp/js/components/ReadmePage.react.js b/RbDiffApp/js/components/pages/ReadmePage.react.js
+similarity index 86%
+rename from RbDiffApp/js/components/ReadmePage.react.js
+rename to RbDiffApp/js/components/pages/ReadmePage.react.js
+index 7c79d64..a603731 100644
+--- a/RbDiffApp/js/components/ReadmePage.react.js
++++ b/RbDiffApp/js/components/pages/ReadmePage.react.js
+@@ -1,11 +1,16 @@
++/*
++ * ReadmePage
++ *
++ * This is the page users see when they click the "Setup" button on the HomePage
++ */
++
+ import React, { Component} from 'react';
+ import { Link } from 'react-router';
+ 
+ export default class AboutPage extends Component {
+ 	render() {
+     return (
+-    		<div className="wrapper">
+-    			<img className="logo" src={require('file!../../img/logo.png')} />
++    	<div>
+ 				<h2>Further Setup</h2>
+ 				<p>Assuming you have already cloned the repo and ran all the commands from the README (otherwise you would not be here), these are the further steps:</p>
+ 
+diff --git a/RbDiffApp/js/constants/AppConstants.js b/RbDiffApp/js/constants/AppConstants.js
+index ae94da7..4deae2f 100644
+--- a/RbDiffApp/js/constants/AppConstants.js
++++ b/RbDiffApp/js/constants/AppConstants.js
+@@ -1,2 +1,10 @@
++/*
++ * AppConstants
++ * These are the variables that determine what our central data store (reducer.js)
++ * changes in our state. When you add a new action, you have to add a new constant here
++ *
++ * Follow this format:
++ * export const YOUR_ACTION_CONSTANT = 'YOUR_ACTION_CONSTANT';
++ */
+ export const CHANGE_PROJECT_NAME = 'CHANGE_PROJECT_NAME';
+ export const CHANGE_OWNER_NAME = 'CHANGE_OWNER_NAME';
+diff --git a/RbDiffApp/js/reducers/reducers.js b/RbDiffApp/js/reducers/reducers.js
+index 5f5764c..98cef7f 100644
+--- a/RbDiffApp/js/reducers/reducers.js
++++ b/RbDiffApp/js/reducers/reducers.js
+@@ -1,3 +1,15 @@
++/*
++ * The reducer takes care of our data
++ * Using actions, we can change our application state
++ * To add a new action, add it to the switch statement in the homeReducer function
++ *
++ * Example:
++ * case YOUR_ACTION_CONSTANT:
++ *   return assign({}, state, {
++ *       stateVariable: action.var
++ *   });
++ */
++
+ import { CHANGE_OWNER_NAME, CHANGE_PROJECT_NAME } from '../constants/AppConstants';
+ const assign = Object.assign || require('object.assign');
+ 
+diff --git a/RbDiffApp/makewebpackconfig.js b/RbDiffApp/makewebpackconfig.js
+index f18e523..2d07b7b 100644
+--- a/RbDiffApp/makewebpackconfig.js
++++ b/RbDiffApp/makewebpackconfig.js
+@@ -4,7 +4,7 @@ var HtmlWebpackPlugin = require('html-webpack-plugin');
+ var AppCachePlugin = require('appcache-webpack-plugin');
+ 
+ module.exports = function(options) {
+-  var entry, jsLoaders, plugins;
++  var entry, jsLoaders, plugins, cssLoaders;
+ 
+   // If production is true
+   if (options.prod) {
+@@ -12,8 +12,7 @@ module.exports = function(options) {
+     entry = [
+       path.resolve(__dirname, 'js/app.js') // Start with js/app.js...
+     ];
+-    // Loaders for JS
+-    jsLoaders = ['babel'];
++    cssLoaders = ['file-loader?name=[path][name].[ext]', 'postcss-loader'];
+     // Plugins
+     plugins = [// Plugins for Webpack
+       new webpack.optimize.UglifyJsPlugin({ // Optimize the JavaScript...
+@@ -36,9 +35,7 @@ module.exports = function(options) {
+           minifyURLs: true
+         }
+       }),
+-      new AppCachePlugin({
+-        cache: ['index.html', 'js/bundle.js', 'serviceworker.js']
+-      })
++      new AppCachePlugin()
+     ];
+ 
+   // If app is in development
+@@ -49,11 +46,11 @@ module.exports = function(options) {
+       "webpack/hot/only-dev-server", // See above
+       path.resolve(__dirname, 'js/app.js') // Start with js/app.js...
+     ];
+-    // Add react-hot loader for js files
+-    jsLoaders = ['babel'];
++    cssLoaders = ['style-loader', 'css-loader', 'postcss-loader'];
+     // Only plugin is the hot module replacement plugin
+     plugins = [
+-      new webpack.HotModuleReplacementPlugin() // Make hot loading work
++      new webpack.HotModuleReplacementPlugin(), // Make hot loading work
++      new AppCachePlugin()
+     ]
+   }
+ 
+@@ -66,11 +63,11 @@ module.exports = function(options) {
+     module: {
+       loaders: [{
+           test: /\.js$/, // Transform all .js files required somewhere within an entry point...
+-          loaders: jsLoaders, // ...with the specified loaders...
++          loader: 'babel', // ...with the specified loaders...
+           exclude: path.join(__dirname, '/node_modules/') // ...except for the node_modules folder.
+         }, {
+           test:   /\.css$/, // Transform all .css files required somewhere within an entry point...
+-          loader: "style-loader!css-loader!postcss-loader" // ...with PostCSS
++          loaders: cssLoaders // ...with PostCSS
+         }, {
+           test: /\.jpe?g$|\.gif$|\.png$/i,
+           loader: "url-loader?limit=10000"
+@@ -99,4 +96,4 @@ module.exports = function(options) {
+     stats: false, // Don't show stats in the console
+     progress: true
+   }
+-}
+\ No newline at end of file
++}
+diff --git a/RbDiffApp/package.json b/RbDiffApp/package.json
+index 5ddc7ea..04edd85 100644
+--- a/RbDiffApp/package.json
++++ b/RbDiffApp/package.json
+@@ -1,27 +1,29 @@
+ {
+   "name": "reactjs-boilerplate",
+-  "version": "2.2.0",
++  "version": "2.3.1",
+   "description": "Quick setup for new React.js applications featuring Redux, hot–reloading, PostCSS, react-router and Mocha.",
+   "dependencies": {
+     "fontfaceobserver": "^1.5.1",
+-    "history": "^1.9.1",
+-    "react": "^0.13.3",
+-    "react-redux": "^2.1.2",
+-    "react-router": "^1.0.0-rc1",
+-    "redux": "^3.0.0"
++    "history": "1.13.1",
++    "react": "^0.14.2",
++    "react-dom": "^0.14.2",
++    "react-redux": "^4.0.0",
++    "react-router": "^1.0.0",
++    "redux": "^3.0.0",
++    "redux-thunk": "^1.0.0"
+   },
+   "devDependencies": {
+-    "appcache-webpack-plugin": "^0.2.0",
++    "appcache-webpack-plugin": "^1.2.0",
+     "autoprefixer": "^6.0.2",
+     "babel": "^5.8.23",
+     "babel-core": "^5.8.24",
+     "babel-eslint": "^4.1.2",
+     "babel-loader": "^5.3.2",
+     "babel-plugin-react-transform": "^1.0.5",
+-    "css-loader": "^0.18.0",
++    "css-loader": "^0.23.0",
+     "cssnano": "^3.0.1",
+     "eslint": "^1.4.1",
+-    "eslint-config-airbnb": "0.0.8",
++    "eslint-config-airbnb": "1.0.0",
+     "eslint-plugin-react": "^3.3.2",
+     "expect": "^1.10.0",
+     "file-loader": "^0.8.4",
+@@ -31,11 +33,11 @@
+     "object.assign": "^4.0.1",
+     "postcss-focus": "^1.0.0",
+     "postcss-import": "^7.0.0",
+-    "postcss-loader": "^0.6.0",
++    "postcss-loader": "^0.8.0",
+     "postcss-reporter": "^1.2.1",
+     "postcss-simple-vars": "^1.0.0",
+-    "react-transform-webpack-hmr": "^0.1.5",
+-    "style-loader": "^0.12.3",
++    "react-transform-hmr": "^1.0.1",
++    "style-loader": "^0.13.0",
+     "url-loader": "^0.5.6",
+     "webpack": "^1.12.1",
+     "webpack-dev-server": "^1.11.0"
+@@ -47,7 +49,7 @@
+   "scripts": {
+     "test": "mocha --compilers js:babel/register --recursive",
+     "start": "NODE_ENV=development && node server.js",
+-    "build": "rm -rf build && NODE_ENV=production && webpack --config webpack.prod.config.js --progress --colors -p"
++    "build": "npm run test && NODE_ENV=production && webpack --config webpack.prod.config.js --progress --colors -p"
+   },
+   "author": "Max Stoiber",
+   "license": "MIT"
+diff --git a/RbDiffApp/serviceworker-cache-polyfill.js b/RbDiffApp/serviceworker-cache-polyfill.js
+new file mode 100644
+index 0000000..db862e5
+--- /dev/null
++++ b/RbDiffApp/serviceworker-cache-polyfill.js
+@@ -0,0 +1,72 @@
++/**
++ * Copyright 2015 Google Inc. All rights reserved.
++ *
++ * Licensed under the Apache License, Version 2.0 (the "License");
++ * you may not use this file except in compliance with the License.
++ * You may obtain a copy of the License at
++ *
++ *     http://www.apache.org/licenses/LICENSE-2.0
++ *
++ * Unless required by applicable law or agreed to in writing, software
++ * distributed under the License is distributed on an "AS IS" BASIS,
++ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
++ * See the License for the specific language governing permissions and
++ * limitations under the License.
++ *
++ */
++
++if (!Cache.prototype.addAll) {
++  Cache.prototype.addAll = function addAll(requests) {
++    var cache = this;
++
++    // Since DOMExceptions are not constructable:
++    function NetworkError(message) {
++      this.name = 'NetworkError';
++      this.code = 19;
++      this.message = message;
++    }
++    NetworkError.prototype = Object.create(Error.prototype);
++
++    return Promise.resolve().then(function() {
++      if (arguments.length < 1) throw new TypeError();
++
++      // Simulate sequence<(Request or USVString)> binding:
++      var sequence = [];
++
++      requests = requests.map(function(request) {
++        if (request instanceof Request) {
++          return request;
++        }
++        else {
++          return String(request); // may throw TypeError
++        }
++      });
++
++      return Promise.all(
++        requests.map(function(request) {
++          if (typeof request === 'string') {
++            request = new Request(request);
++          }
++
++          var scheme = new URL(request.url).protocol;
++
++          if (scheme !== 'http:' && scheme !== 'https:') {
++            throw new NetworkError("Invalid scheme");
++          }
++
++          return fetch(request.clone());
++        })
++      );
++    }).then(function(responses) {
++      // TODO: check that requests don't overwrite one another
++      // (don't think this is possible to polyfill due to opaque responses)
++      return Promise.all(
++        responses.map(function(response, i) {
++          return cache.put(requests[i], response);
++        })
++      );
++    }).then(function() {
++      return undefined;
++    });
++  };
++}
+\ No newline at end of file
+diff --git a/RbDiffApp/serviceworker.js b/RbDiffApp/serviceworker.js
+index e9c0f1e..b293662 100644
+--- a/RbDiffApp/serviceworker.js
++++ b/RbDiffApp/serviceworker.js
+@@ -1,3 +1,5 @@
++importScripts('serviceworker-cache-polyfill.js');
++
+ var CACHE_NAME = 'react-boilerplate-cache-v1';
+ // The files we want to cache
+ var urlsToCache = [
