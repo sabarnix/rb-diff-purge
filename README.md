@@ -1,5 +1,5 @@
 # RB diff PURGE
-This repository is inspired fro https://github.com/react-native-community/rn-diff-purge/ it has all the diffs required to easily upgrade react- [react-boilerplate](https://github.com/react-boilerplate/react-boilerplate)
+This repository is inspired from https://github.com/react-native-community/rn-diff-purge/ it has all the diffs required to easily upgrade react- [react-boilerplate](https://github.com/react-boilerplate/react-boilerplate)
 
 ## Diff table
 
