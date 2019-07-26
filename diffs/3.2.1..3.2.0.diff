@@ -1,0 +1,223 @@
+diff --git a/RbDiffApp/.travis.yml b/RbDiffApp/.travis.yml
+index 9f61378..e522d8e 100644
+--- a/RbDiffApp/.travis.yml
++++ b/RbDiffApp/.travis.yml
+@@ -1,27 +1,18 @@
+ language: node_js
+-
++sudo: true
++dist: trusty
+ node_js:
+-  - 6
+-  - 5
+-  - 4
+-
++  - "5.0"
+ script: npm run build
+-
+-install:
+-  - npm i -g npm@latest
+-  - npm install
+-
+ before_install:
+-  - export CHROME_BIN=chromium-browser
++  - export CHROME_BIN=/usr/bin/google-chrome
+   - export DISPLAY=:99.0
++  - sudo apt-get update
++  - sudo apt-get install -y libappindicator1 fonts-liberation
++  - wget https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb
++  - sudo dpkg -i google-chrome*.deb
+   - sh -e /etc/init.d/xvfb start
+-
+ notifications:
+   email:
+     on_failure: change
+-
+ after_success: 'npm run coveralls'
+-
+-cache:
+-  directories:
+-    - node_modules
+diff --git a/RbDiffApp/LICENSE.md b/RbDiffApp/LICENSE.md
+index 3a2e067..39cb81e 100644
+--- a/RbDiffApp/LICENSE.md
++++ b/RbDiffApp/LICENSE.md
+@@ -1,6 +1,6 @@
+ The MIT License (MIT)
+ 
+-Copyright (c) 2016 Maximilian Stoiber
++Copyright (c) 2015 Maximilian Stoiber
+ 
+ Permission is hereby granted, free of charge, to any person obtaining a copy
+ of this software and associated documentation files (the "Software"), to deal
+diff --git a/RbDiffApp/appveyor.yml b/RbDiffApp/appveyor.yml
+index 1787138..8b9a2a8 100644
+--- a/RbDiffApp/appveyor.yml
++++ b/RbDiffApp/appveyor.yml
+@@ -11,9 +11,7 @@ environment:
+ 
+   matrix:
+     # Node versions to run
+-    - nodejs_version: 6
+-    - nodejs_version: 5
+-    - nodejs_version: 4
++    - nodejs_version: "5.0"
+ 
+ # Fix line endings in Windows. (runs before repo cloning)
+ init:
+diff --git a/RbDiffApp/docs/general/README.md b/RbDiffApp/docs/general/README.md
+index 2d3dfae..8f97ceb 100644
+--- a/RbDiffApp/docs/general/README.md
++++ b/RbDiffApp/docs/general/README.md
+@@ -49,7 +49,7 @@ you can see, play back and change your action history!
+ ## Next generation JavaScript
+ 
+ Use ESNext template strings, object destructuring, arrow functions, JSX syntax
+-and more, today. This is possible thanks to Babel with the `latest`, `stage-0`
++and more, today. This is possible thanks to Babel with the `es2015`, `stage-0`
+ and `react` presets!
+ 
+ ## Next generation CSS
+diff --git a/RbDiffApp/internals/config.js b/RbDiffApp/internals/config.js
+index 32b6781..86d56b6 100644
+--- a/RbDiffApp/internals/config.js
++++ b/RbDiffApp/internals/config.js
+@@ -4,7 +4,7 @@ const uniq = require('lodash/uniq');
+ 
+ const ReactBoilerplate = {
+   // This refers to the react-boilerplate version this project is based on.
+-  version: '3.2.1',
++  version: '3.2.0',
+ 
+   /**
+    * The DLL Plugin provides a dramatic speed increase to webpack build and hot module reloading
+diff --git a/RbDiffApp/package.json b/RbDiffApp/package.json
+index ceb998d..a68ada7 100644
+--- a/RbDiffApp/package.json
++++ b/RbDiffApp/package.json
+@@ -1,6 +1,6 @@
+ {
+   "name": "react-boilerplate",
+-  "version": "3.2.1",
++  "version": "3.2.0",
+   "description": "A highly scalable, offline-first foundation with the best DX and a focus on performance and best practices",
+   "repository": {
+     "type": "git",
+@@ -15,7 +15,7 @@
+     "analyze:clean": "rimraf stats.json",
+     "preanalyze": "npm run analyze:clean",
+     "analyze": "node ./internals/scripts/analyze.js",
+-    "extract-intl": "babel-node --presets latest,stage-0 -- ./internals/scripts/extract-intl.js",
++    "extract-intl": "babel-node --presets es2015,stage-0 -- ./internals/scripts/extract-intl.js",
+     "npmcheckversion": "node ./internals/scripts/npmcheckversion.js",
+     "preinstall": "npm run npmcheckversion",
+     "postinstall": "npm run build:dll",
+@@ -56,11 +56,9 @@
+   "babel": {
+     "presets": [
+       [
+-        "latest",
++        "es2015",
+         {
+-          "es2015": {
+-            "modules": false
+-          }
++          "modules": false
+         }
+       ],
+       "react",
+@@ -105,10 +103,7 @@
+       }
+     },
+     "rules": {
+-      "arrow-parens": [
+-        "error",
+-        "always"
+-      ],
++      "arrow-parens": ["error", "always"],
+       "arrow-body-style": [
+         2,
+         "as-needed"
+@@ -144,10 +139,7 @@
+       "prefer-template": 2,
+       "class-methods-use-this": 0,
+       "react/forbid-prop-types": 0,
+-      "react/jsx-first-prop-new-line": [
+-        2,
+-        "multiline"
+-      ],
++      "react/jsx-first-prop-new-line": [2, "multiline"],
+       "react/jsx-filename-extension": 0,
+       "react/jsx-no-target-blank": 0,
+       "react/require-extension": 0,
+@@ -222,13 +214,13 @@
+     "react-helmet": "3.1.0",
+     "react-redux": "4.4.5",
+     "react-intl": "2.1.5",
+-    "react-router": "2.8.1",
++    "react-router": "2.8.0",
+     "react-router-redux": "4.0.5",
+     "react-router-scroll": "0.3.2",
+     "redux": "3.6.0",
+     "redux-immutable": "3.0.8",
+     "redux-saga": "0.11.1",
+-    "reselect": "2.5.4",
++    "reselect": "2.5.3",
+     "sanitize.css": "4.1.0",
+     "warning": "3.0.0",
+     "whatwg-fetch": "1.0.0"
+@@ -244,30 +236,29 @@
+     "babel-plugin-transform-react-constant-elements": "6.9.1",
+     "babel-plugin-transform-react-inline-elements": "6.8.0",
+     "babel-plugin-transform-react-remove-prop-types": "0.2.9",
+-    "babel-preset-latest": "6.14.0",
++    "babel-preset-es2015": "6.14.0",
+     "babel-preset-react": "6.11.1",
+     "babel-preset-react-hmre": "1.1.1",
+     "babel-preset-stage-0": "6.5.0",
+     "chai": "3.5.0",
+     "chai-enzyme": "0.5.1",
+     "cheerio": "0.22.0",
+-    "coveralls": "2.11.13",
++    "coveralls": "2.11.12",
+     "css-loader": "0.25.0",
+     "enzyme": "2.4.1",
+     "eslint": "3.5.0",
+     "eslint-config-airbnb": "11.1.0",
+-    "eslint-config-airbnb-base": "7.1.0",
+-    "eslint-import-resolver-webpack": "0.6.0",
+-    "eslint-plugin-import": "1.15.0",
++    "eslint-import-resolver-webpack": "0.5.1",
++    "eslint-plugin-import": "1.14.0",
+     "eslint-plugin-jsx-a11y": "2.2.2",
+-    "eslint-plugin-react": "6.2.2",
++    "eslint-plugin-react": "6.2.0",
+     "eventsource-polyfill": "0.9.6",
+     "expect": "1.20.2",
+     "expect-jsx": "2.6.0",
+     "exports-loader": "0.6.3",
+     "extract-text-webpack-plugin": "2.0.0-beta.4",
+     "file-loader": "0.9.0",
+-    "html-loader": "0.4.4",
++    "html-loader": "0.4.3",
+     "html-webpack-plugin": "2.22.0",
+     "image-webpack-loader": "2.0.0",
+     "imports-loader": "0.6.5",
+@@ -282,7 +273,7 @@
+     "karma-safari-launcher": "1.0.0",
+     "karma-sourcemap-loader": "0.3.7",
+     "karma-webpack": "1.8.0",
+-    "lint-staged": "3.0.2",
++    "lint-staged": "3.0.1",
+     "mocha": "3.0.2",
+     "ngrok": "2.2.2",
+     "null-loader": "0.1.1",
+@@ -302,7 +293,7 @@
+     "stylelint-config-standard": "13.0.0",
+     "url-loader": "0.5.7",
+     "webpack": "2.1.0-beta.22",
+-    "webpack-dev-middleware": "1.8.0",
++    "webpack-dev-middleware": "1.7.0",
+     "webpack-hot-middleware": "2.12.2"
+   }
+ }
