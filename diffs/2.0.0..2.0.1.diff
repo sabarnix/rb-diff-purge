@@ -1,0 +1,88 @@
+diff --git a/RbDiffApp/css/components/_home.css b/RbDiffApp/css/components/_home.css
+index a004a73..9219af1 100644
+--- a/RbDiffApp/css/components/_home.css
++++ b/RbDiffApp/css/components/_home.css
+@@ -14,6 +14,14 @@
+ 	text-align: center;
+ }
+ 
++.btn {
++	background-color: skyblue;
++	padding: 0.5em;
++	color: #FEFEFE;
++	border-radius: 3px;
++	text-decoration: none;
++}
++
+ .logo {
+ 	max-height: 5em;
+ 	margin: 0 auto;
+diff --git a/RbDiffApp/js/components/HomePage.react.js b/RbDiffApp/js/components/HomePage.react.js
+index 592b587..be34d6c 100644
+--- a/RbDiffApp/js/components/HomePage.react.js
++++ b/RbDiffApp/js/components/HomePage.react.js
+@@ -10,14 +10,14 @@ class HomePage extends Component {
+ 			<div className="wrapper">
+         <img className="logo" src={require('file!../../img/logo.png')} />
+ 				<h1>Hello World!</h1>
+-        <h2>This is the <span className="home__text--red">{ projectName }</span> by <a href={'https://twitter.com/' + ownerName} >@{ ownerName }</a></h2>
++        <h2>This is the demo for the <span className="home__text--red">{ projectName }</span> by <a href={'https://twitter.com/' + ownerName} >@{ ownerName }</a></h2>
+         <label className="home__label">Change to your project name:
+ 				  <input className="home__input" type="text" onChange={(evt) => { dispatch(changeProjectName(evt.target.value)); }} defaultValue="React.js Boilerplate" placeholder="React.js Boilerplate" />
+         </label>
+         <label className="home__label">Change to your name:
+           <input className="home__input" type="text" onChange={(evt) => { dispatch(changeOwnerName(evt.target.value)); }} defaultValue="mxstbr" placeholder="mxstbr" />
+         </label>
+-        <Link to="/readme">Setup</Link>
++        <Link className="btn" to="/readme">Setup</Link>
+ 			</div>
+ 		);
+   }
+diff --git a/RbDiffApp/js/components/ReadmePage.react.js b/RbDiffApp/js/components/ReadmePage.react.js
+index 97948a3..7c79d64 100644
+--- a/RbDiffApp/js/components/ReadmePage.react.js
++++ b/RbDiffApp/js/components/ReadmePage.react.js
+@@ -6,8 +6,18 @@ export default class AboutPage extends Component {
+     return (
+     		<div className="wrapper">
+     			<img className="logo" src={require('file!../../img/logo.png')} />
+-				<h2>About</h2>
+-				<Link to="/">Home</Link>
++				<h2>Further Setup</h2>
++				<p>Assuming you have already cloned the repo and ran all the commands from the README (otherwise you would not be here), these are the further steps:</p>
++
++				<ol>
++					<li>Replace my name and the package name in the package.json file</li>
++					<li>Replace the two components with your first component</li>
++					<li>Replace the default actions with your first action</li>
++					<li>Delete css/components/_home.css and add the styling for your component</li>
++					<li>And finally, update the unit tests</li>
++				</ol>
++
++				<Link className="btn" to="/">Home</Link>
+ 			</div>
+ 		);
+   }
+diff --git a/RbDiffApp/js/reducers/reducers.js b/RbDiffApp/js/reducers/reducers.js
+index 9ba5f30..5f5764c 100644
+--- a/RbDiffApp/js/reducers/reducers.js
++++ b/RbDiffApp/js/reducers/reducers.js
+@@ -1,5 +1,5 @@
+ import { CHANGE_OWNER_NAME, CHANGE_PROJECT_NAME } from '../constants/AppConstants';
+-import assign from 'react/lib/Object.assign';
++const assign = Object.assign || require('object.assign');
+ 
+ const initialState = {
+   projectName: 'React.js Boilerplate',
+diff --git a/RbDiffApp/package.json b/RbDiffApp/package.json
+index f11c37b..05450cb 100644
+--- a/RbDiffApp/package.json
++++ b/RbDiffApp/package.json
+@@ -23,6 +23,7 @@
+     "file-loader": "^0.8.4",
+     "html-webpack-plugin": "^1.6.1",
+     "mocha": "^2.2.5",
++    "object.assign": "^3.0.1",
+     "postcss-focus": "^0.1.1",
+     "postcss-import": "^6.2.0",
+     "postcss-loader": "^0.5.1",
