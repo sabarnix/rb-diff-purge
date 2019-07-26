@@ -1,0 +1,11 @@
+js/bundle.js
+js/bundle.min.js
+build
+node_modules
+*.html
+*.md
+*.json
+*.css
+config.js
+server.js
+*.config.js
