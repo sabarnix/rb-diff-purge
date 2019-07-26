@@ -1,0 +1,1631 @@
+diff --git a/RbDiffApp/.babelrc b/RbDiffApp/.babelrc
+deleted file mode 100644
+index 6d1c539..0000000
+--- a/RbDiffApp/.babelrc
++++ /dev/null
+@@ -1,16 +0,0 @@
+-{
+-  "env": {
+-    "development": {
+-      "plugins": [
+-        ["react-transform", {
+-          "transforms": [{
+-            "transform": "react-transform-hmr",
+-            "imports": ["react"],
+-            "locals": ["module"]
+-          }]
+-        }]
+-      ]
+-    }
+-  },
+-  "presets": ["es2015", "react", "stage-2"]
+-}
+diff --git a/RbDiffApp/.eslintignore b/RbDiffApp/.eslintignore
+index 74dd05a..f7fe025 100644
+--- a/RbDiffApp/.eslintignore
++++ b/RbDiffApp/.eslintignore
+@@ -1,9 +1,11 @@
+-# node_modules are ignored by default
+-
+-# Ignore build folder
++js/bundle.js
++js/bundle.min.js
+ build
+-
+-# Ignore config stuff
++node_modules
++*.html
++*.md
++*.json
++*.css
++config.js
+ server.js
+-*config.js
+-serviceworker.js
++*.config.js
+\ No newline at end of file
+diff --git a/RbDiffApp/.eslintrc b/RbDiffApp/.eslintrc
+index 5d4e3a3..651b556 100644
+--- a/RbDiffApp/.eslintrc
++++ b/RbDiffApp/.eslintrc
+@@ -1,10 +1,5 @@
+ {
+   	"extends": "./node_modules/eslint-config-airbnb/.eslintrc",
+-    "env": {
+-      "browser": true,
+-      "node": true,
+-      "mocha": true
+-    },
+   	"ecmaFeatures": {
+       	"forOf": true,
+       	"jsx": true,
+@@ -14,4 +9,4 @@
+   		"comma-dangle": 0,
+   		"react/prop-types": 0
+   	}
+-}
++}
+\ No newline at end of file
+diff --git a/RbDiffApp/.gitattributes b/RbDiffApp/.gitattributes
+deleted file mode 100644
+index 783ceaa..0000000
+--- a/RbDiffApp/.gitattributes
++++ /dev/null
+@@ -1,106 +0,0 @@
+-# From https://github.com/Danimoth/gitattributes/blob/master/Web.gitattributes
+-
+-# Handle line endings automatically for files detected as text
+-# and leave all files detected as binary untouched.
+-* text=auto
+-
+-#
+-# The above will handle all files NOT found below
+-#
+-
+-#
+-## These files are text and should be normalized (Convert crlf => lf)
+-#
+-
+-# source code
+-*.php text
+-*.css text
+-*.sass text
+-*.scss text
+-*.less text
+-*.styl text
+-*.js text
+-*.coffee text
+-*.json text
+-*.htm text
+-*.html text
+-*.xml text
+-*.svg text
+-*.txt text
+-*.ini text
+-*.inc text
+-*.pl text
+-*.rb text
+-*.py text
+-*.scm text
+-*.sql text
+-*.sh text
+-*.bat text
+-
+-# templates
+-*.ejs text
+-*.hbt text
+-*.jade text
+-*.haml text
+-*.hbs text
+-*.dot text
+-*.tmpl text
+-*.phtml text
+-
+-# server config
+-.htaccess text
+-
+-# git config
+-.gitattributes text
+-.gitignore text
+-.gitconfig text
+-
+-# code analysis config
+-.jshintrc text
+-.jscsrc text
+-.jshintignore text
+-.csslintrc text
+-
+-# misc config
+-*.yaml text
+-*.yml text
+-.editorconfig text
+-
+-# build config
+-*.npmignore text
+-*.bowerrc text
+-
+-# Heroku
+-Procfile text
+-.slugignore text
+-
+-# Documentation
+-*.md text
+-LICENSE text
+-AUTHORS text
+-
+-
+-#
+-## These files are binary and should be left untouched
+-#
+-
+-# (binary is a macro for -text -diff)
+-*.png binary
+-*.jpg binary
+-*.jpeg binary
+-*.gif binary
+-*.ico binary
+-*.mov binary
+-*.mp4 binary
+-*.mp3 binary
+-*.flv binary
+-*.fla binary
+-*.swf binary
+-*.gz binary
+-*.zip binary
+-*.7z binary
+-*.ttf binary
+-*.eot binary
+-*.woff binary
+-*.pyc binary
+-*.pdf binary
+diff --git a/RbDiffApp/.htaccess b/RbDiffApp/.htaccess
+deleted file mode 100644
+index 5204b4b..0000000
+--- a/RbDiffApp/.htaccess
++++ /dev/null
+@@ -1,44 +0,0 @@
+-<ifModule mod_rewrite.c>
+-
+-
+-  #######################################################################
+-  # GENERAL                                                             #
+-  #######################################################################
+-
+-  # Make apache follow sym links to files
+-  Options +FollowSymLinks
+-  # If somebody opens a folder, hide all files from the resulting folder list
+-  IndexIgnore */*
+-
+-
+-  #######################################################################
+-  # REWRITING                                                           #
+-  #######################################################################
+-
+-  # Enable rewriting
+-  RewriteEngine On
+-
+-  # If its not HTTPS
+-  RewriteCond %{HTTPS} off
+-
+-  # Comment out the RewriteCond above, and uncomment the RewriteCond below if you're using a load balancer (e.g. CloudFlare) for SSL
+-  # RewriteCond %{HTTP:X-Forwarded-Proto} !https
+-
+-  # Redirect to the same URL with https://, ignoring all further rules if this one is in effect
+-  RewriteRule ^(.*) https://%{HTTP_HOST}/$1 [R,L]
+-
+-  # If we get to here, it means we are on https://
+-  
+-  # If the file with the specified name in the browser doesn't exist
+-  RewriteCond %{REQUEST_FILENAME} !-f
+-
+-  # and the directory with the specified name in the browser doesn't exist
+-  RewriteCond %{REQUEST_FILENAME} !-d
+-
+-  # and we are not opening the root already (otherwise we get a redirect loop)
+-  RewriteCond %{REQUEST_FILENAME} !\/$
+-
+-  # Rewrite all requests to the root
+-  RewriteRule ^(.*) /
+-
+-</ifModule>
+diff --git a/RbDiffApp/README.md b/RbDiffApp/README.md
+index 4ebfbc8..2684bdb 100644
+--- a/RbDiffApp/README.md
++++ b/RbDiffApp/README.md
+@@ -1,14 +1,12 @@
+ # React.js Boilerplate
+ 
+-Quick setup for new performance orientated, offline–first React.js applications featuring Redux, hot–reloading, PostCSS, react-router, ServiceWorker, AppCache, FontFaceObserver and Mocha.
+-
+-[![Dependency Status](https://david-dm.org/mxstbr/react-boilerplate.svg)](https://david-dm.org/mxstbr/react-boilerplate)
++Quick setup for new React.js applications featuring Redux, hot–reloading, PostCSS, react-router and Mocha.
+ 
+ -----
+ 
+ ## Features
+ 
+-- Using [**react-transform-hmr**](https://github.com/gaearon/react-transform-hmr), your changes in the CSS and JS get reflected in the app instantly without refreshing the page. That means that the **current application state persists** even when you change something in the underlying code! For a very good explanation and demo watch Dan Abramov himself [talking about it at react-europe](https://www.youtube.com/watch?v=xsSnOQynTHs).
++- Using [**react-hot-loader**](https://github.com/gaearon/react-hot-loader), your changes in the CSS and JS get reflected in the app instantly without refreshing the page. That means that the **current application state persists** even when you change something in the underlying code! For a very good explanation and demo watch Dan Abramov himself [talking about it at react-europe](https://www.youtube.com/watch?v=xsSnOQynTHs).
+ 
+ - [**Redux**](https://github.com/gaearon/redux) is a much better implementation of a flux–like, unidirectional data flow. Redux makes actions composable, reduces the boilerplate code and makes hot–reloading possible in the first place. For a good overview of redux check out the talk linked above or the [official documentation](https://gaearon.github.io/redux/)!
+ 
+@@ -18,8 +16,6 @@ Quick setup for new performance orientated, offline–first React.js application
+ 
+ - [**react-router**](https://github.com/rackt/react-router) is used for routing in this boilerplate. Using the new, and currently unreleased, `1.0` version, react-router makes routing really easy to do and takes care of a lot of the work. Since the version is not officially out yet, the [documentation](https://github.com/rackt/react-router/blob/master/doc/00%20Guides/0%20Overview.md) is not fully finished, but by far finished enough to work for most needs.
+ 
+-- [**ServiceWorker**](http://www.html5rocks.com/en/tutorials/service-worker/introduction/) and [**AppCache**](http://www.html5rocks.com/en/tutorials/appcache/beginner/) make it possible to use your application offline. As soon as the website has been opened once, it is cached and available without a network connection. [**`manifest.json`**](https://developer.chrome.com/multidevice/android/installtohomescreen) is specifically for Chrome on Android. Users can add the website to the homescreen and use it like a native app!
+-
+ ## Getting started
+ 
+ 1. Clone this repo using `git clone git@github.com:mxstbr/react-boilerplate`.
+@@ -40,106 +36,66 @@ Quick setup for new performance orientated, offline–first React.js application
+ 
+ 2. Upload the contents of the `build` folder to your web server.
+ 
+-### Server Configuration
+-
+-#### Apache
++3. ?????? (You figure this part out)
+ 
+-This boilerplate includes a `.htaccess` file that does two things:
+-
+-1. Redirect all traffic to HTTPS because ServiceWorker only works for encrypted traffic
+-
+-2. Rewrite all pages (e.g. yourdomain.com/subpage) to the `index.html` to let `react-router` take care of presenting the correct page
++4. Profit!
+ 
+ ## CSS
+ 
+-The CSS modules found in the `css` subfolders all get imported into one big file (`main.css`), which gets transpiled with PostCSS.
+-
+-See the [`css` folder README](css/README.md) for more information about the PostCSS plugins used and the CSS structure.
+-
+-## JS
+-
+-All files that are `import`ed/`require`d somewhere get compiled into one big file at build time. (`build/bundle.js`) Webpack automatically optimizes your JavaScript with `UglifyJS`, so you don't have to worry about that.
+-
+-See the [`js` folder README](js/README.md) for more information about the JS structure.
+-
+-## Testing
+-
+-Unit tests live in the `test` directory, and are run with `npm test`. There are two files in there already, testing that the current AppActions and Reducers are working correctly. Should you be stuck and have no idea what is going on check out the official [Mocha documentation](http://mochajs.org)!
+-
+-## Files in the root folder
+-
+-For a full explanation of all files in the root folder, see [`docs/FILES.md`](docs/FILE-APPENDIX.md).
+-
+-## Opinionated features
+-
+-### Web Fonts
++The CSS modules found in the `css` subfolders all get imported into the `main.css` file, which get inlined and minified into the `compiled.css` file. To add/change the styling, either write the CSS into the appropriate module or make a new one and `@import` it in the `main.css` file at the appropriate place.
+ 
+-If you simply use web fonts in your project, the page will stay blank until these fonts are downloaded. That means a lot of waiting time in which users could already read the content.
++### PostCSS Plugins
+ 
+-[FontFaceObserver](https://github.com/bramstein/fontfaceobserver) adds a `js-<font-name>-loaded` class to the `body` when the fonts have loaded. You should specify an initial `font-family` with save fonts on the `body`, and a `.js-<font-name>-loaded` `font-family` which includes your web font. See [app.js](js/app.js#L17-L25) and [base.css](css/base/_base.css#L26-L32).
++The boilerplate uses PostCSS, and includes a few plugins by default:
+ 
+-#### Adding a new font
++* `postcss-import`: Inlines `@import`ed stylesheets to create one big stylesheet.
+ 
+-1. Either add the `@font-face` declaration to `base/_fonts.css` or add a `<link>` tag to the [`index.html`](index.html). (Don't forget to remove the `<link>` for Open Sans from the [`index.html`](index.html))
++* `postcss-simple-vars`: Makes it possible to use `$variables in your CSS.
+ 
+-2. In `base/_base.css`, specify your initial `font-family` in the `body` tag with only save fonts. In the `body.js-<font-name>-loaded` tag, specify your `font-family` stack with your web font.
++* `postcss-focus`: Adds a `:focus` selector to every `:hover`.
+ 
+-3. In `js/app.js` add a `<font-name>Observer` for your font.
++* `autoprefixer-core`: Prefixes your CSS automatically, supporting the last two versions of all major browsers and IE 8 and up.
+ 
+-#### Removing performant web font loading
++* `cssnano`: Optimizes your CSS file. For a full list of optimizations check [the offical website](http://cssnano.co/optimisations/).
+ 
+-**Careful** about removing this, as perceived performance might be highly impacted.
++* `postcss-reporter`: Makes warnings by the above plugins visible in the console.
+ 
+-To remove `FontFaceObserver`, don't import it in [`app.js`](js/app.js) and remove it from the [`package.json`](package.json).
++For a full, searchable catalog of plugins go to [postcss.parts](http://postcss.parts).
+ 
+-### Offline access
++### Folder Structure
+ 
+-Using a `ServiceWorker` and the `Application Cache`, your application is cached for offline usage.
++The boilerplate comes with a basic folder structure to keep the CSS files organised. This is what the folders are for:
+ 
+-#### Cache a new file
++* `base`: Global styling, e.g. setting the box–model for all elements
+ 
+-To cache a file, add it to the `urlsToCache` variable in the [`serviceworker.js`](serviceworker.js) file.
++* `components`: Component specific styling, e.g. buttons, modals,...
+ 
+-#### Removing offline access
++* `layout`: Global layouts, e.g. article, homepage,...
+ 
+-**Careful** about removing this, as there is no real downside to having your application available when the users network connection isn't perfect.
++* `utils`: Utility files, e.g. variables, mixins, functions,...
+ 
+-To remove offline capability, delete [`serviceworker.js`](serviceworker.js), remove the import in [`app.js`](js/app.js), remove `AppCachePlugin` in [`makewebpackconfig.js`](makewebpackconfig.js) and remove the `manifest` attribute of the `<html>` tag in [`index.html`](index.html).
++* `vendor`: External files, e.g. a CSS reset
+ 
+-### Add To Homescreen
+-
+-On Chrome for Android (soon hopefully more browsers), users can add a webpage to the homescreen. Combined with offline caching, this means your web app can be used exactly like a native application.
+-
+-The name and icon to be displayed are set in the `manifest.json` file. Change them to your project name and icon, and try it!
+-
+-#### Removing add to homescreen functionality
++## JS
+ 
+-Delete [`manifest.json`](manifest.json) and remove the `<link rel="manifest" href="manifest.json">` tag from the [`index.html`](index.html).
++All files that are `import`ed/`require`d somewhere get compiled into one big file at build time. (`build/bundle.js`) Webpack automatically optimizes your JavaScript with `UglifyJS`, so you do not have to worry about that.
+ 
+-## Gotchas
++### Folder Structure
+ 
+-These are some things to be aware of when using this boilerplate.
++The folder structure of the JS files reflects how [Redux](https://github.com/gaearon/redux) works, so if you are not familiar with Redux check out the [official documentation](https://gaearon.github.io/redux/).
+ 
+-### Images in the HTML file(s)
++* `actions`: Actions get dispatched with this/these utility module(s)
+ 
+-Adding images to the HTML is a bit of a pain right now as webpack only goes through the JavaScript file. Add the image to your HTML file how you always would:
++* `components`: The main JS folder. All your React components should be in this folder, for big projects they might be grouped into seperate subfolders. E.g. a navigation component `Nav.react.js`
+ 
+-```HTML
+-<!-- Normal Image -->
+-<img src="img/yourimg.png" />
+-<!-- Meta tags -->
+-<meta property="og:image" content="img/yourimg.png" />
+-<!-- ... -->
+-```
++* `constants`: Action constants need to be defined in this/these utility module(s)
+ 
+-If you simply do this, webpack will not transfer the images to the build folder. To get webpack to transfer them, you have to import them with the file loader in your JavaScript somewhere, e.g.:
++* `reducers`: Reducers manage the state of an app, basically a simplified implementation of Stores in Flux. For an introduction to reducers, watch [this talk](https://www.youtube.com/watch?v=xsSnOQynTHs) by @gaearon.
+ 
+-```JavaScript
+-import 'file?name=[name].[ext]!../img/yourimg.png';
+-```
++## Testing
+ 
+-Then webpack will correctly transfer the image to the build folder.
++Unit tests live in the `test` directory, and are run with `npm test`. There are two files in there already, testing that the current AppActions and Reducers are working correctly. Should you be stuck and have no idea what is going on check out the official [Mocha documentation](http://mochajs.org)!
+ 
+ ## License
+ 
+-This project is licensed under the MIT license, Copyright (c) 2015 Maximilian Stoiber. For more information see `LICENSE.md`.
++This project is licensed under the MIT license, Copyright (c) 2015 Maximilian Stoiber. For more information see `LICENSE.md`.
+\ No newline at end of file
+diff --git a/RbDiffApp/css/README.md b/RbDiffApp/css/README.md
+deleted file mode 100644
+index 2702cbe..0000000
+--- a/RbDiffApp/css/README.md
++++ /dev/null
+@@ -1,37 +0,0 @@
+-# `css`
+-
+-All `.css` files in one of the five subfolders get compiled into one big file. You can write in existing files and add new ones and they'll get imported automatically.
+-
+-## PostCSS Plugins
+-
+-The boilerplate uses PostCSS, and includes a few plugins by default:
+-
+-* `postcss-import`: Inlines `@import`ed stylesheets to create one big stylesheet.
+-
+-* `postcss-simple-vars`: Makes it possible to use `$variables in your CSS.
+-
+-* `postcss-focus`: Adds a `:focus` selector to every `:hover`.
+-
+-* `autoprefixer-core`: Prefixes your CSS automatically, supporting the last two versions of all major browsers and IE 8 and up.
+-
+-* `cssnano`: Optimizes your CSS file. For a full list of optimizations check [the offical website](http://cssnano.co/optimisations/).
+-
+-* `postcss-reporter`: Makes warnings by the above plugins visible in the console.
+-
+-For a full, searchable catalog of plugins go to [postcss.parts](http://postcss.parts).
+-
+-## Folder structure
+-
+-The boilerplate comes with a basic folder structure to keep the CSS files organised. This is what the folders are for:
+-
+-* `base`: Global styling, e.g. setting the box–model for all elements
+-
+-* `components`: Component specific styling, e.g. buttons, modals,...
+-
+-* `layout`: Global layouts, e.g. article, homepage,...
+-
+-* `utils`: Utility files, e.g. variables, mixins, functions,...
+-
+-* `vendor`: External files, e.g. a CSS reset
+-
+-* `main.css`: All CSS files from the above directories are `@import`ed into this file and inlined with `postcss-import`.
+diff --git a/RbDiffApp/css/base/_base.css b/RbDiffApp/css/base/_base.css
+index 10f0936..76cacf1 100644
+--- a/RbDiffApp/css/base/_base.css
++++ b/RbDiffApp/css/base/_base.css
+@@ -21,12 +21,4 @@ html,
+ body {
+ 	margin: 0;
+ 	padding: 0;
+-}
+-
+-body {
+-	font-family: Helvetica Neue, Helvetica, Arial, sans-serif;
+-}
+-
+-body.js-open-sans-loaded {
+-	font-family: 'Open Sans', Helvetica Neue, Helvetica, Arial, sans-serif;
+ }
+\ No newline at end of file
+diff --git a/RbDiffApp/css/utils/_helpers.css b/RbDiffApp/css/base/_helpers.css
+similarity index 100%
+rename from RbDiffApp/css/utils/_helpers.css
+rename to RbDiffApp/css/base/_helpers.css
+diff --git a/RbDiffApp/css/base/_typography.css b/RbDiffApp/css/base/_typography.css
+index 735376f..3308593 100644
+--- a/RbDiffApp/css/base/_typography.css
++++ b/RbDiffApp/css/base/_typography.css
+@@ -1,3 +1,7 @@
+ /**
+  * Basic typography style for copy text
+  */
++body {
++  color: $text-color;
++  font: normal 125% / 1.4 $text-font-stack;
++}
+diff --git a/RbDiffApp/css/components/_home.css b/RbDiffApp/css/components/_home.css
+index 9219af1..a004a73 100644
+--- a/RbDiffApp/css/components/_home.css
++++ b/RbDiffApp/css/components/_home.css
+@@ -14,14 +14,6 @@
+ 	text-align: center;
+ }
+ 
+-.btn {
+-	background-color: skyblue;
+-	padding: 0.5em;
+-	color: #FEFEFE;
+-	border-radius: 3px;
+-	text-decoration: none;
+-}
+-
+ .logo {
+ 	max-height: 5em;
+ 	margin: 0 auto;
+diff --git a/RbDiffApp/css/main.css b/RbDiffApp/css/main.css
+index 338c875..59f30d0 100644
+--- a/RbDiffApp/css/main.css
++++ b/RbDiffApp/css/main.css
+@@ -1,18 +1,21 @@
+-/* Do not write any CSS in here, add it to the appropriate module or make a new one */
++/* Do not write any CSS in here, add it to the appropriate module or make a new one and import it here */
+ 
+ @charset 'UTF-8';
+ 
+ /* 1. Vendors */
+-@import 'vendor/*.css';
++@import 'vendor/_normalize';
+ 
+ /* 2. Configuration and helpers */
+-@import 'utils/*.css';
++@import 'utils/_variables';
++@import 'base/_helpers';
+ 
+ /* 3. Base stuff */
+-@import 'base/*.css';
++@import 'base/_base';
+ 
+ /* 4. Layout-related sections */
+-@import 'layout/*.css';
++@import 'layout/_header';
++@import 'layout/_footer';
+ 
+ /* 5. Components */
+-@import 'components/*.css';
++@import 'components/_buttons';
++@import 'components/_home';
+diff --git a/RbDiffApp/docs/COMMANDS.md b/RbDiffApp/docs/COMMANDS.md
+deleted file mode 100644
+index 0520285..0000000
+--- a/RbDiffApp/docs/COMMANDS.md
++++ /dev/null
+@@ -1,25 +0,0 @@
+-# Command Line Commands
+-
+-## Development
+-
+-```Shell
+-$ npm start
+-```
+-
+-Starts the development server and makes your application accessible at `localhost:3000`. Changes in the application code will be hot-reloaded.
+-
+-## Building
+-
+-```Shell
+-$ npm run build
+-```
+-
+-Gets your application ready for deployment. Optimizes and minifies all files, and generates a folder called `build`. `build` includes all files you need for your application. Upload the contents of `build` to your web server to see it live!
+-
+-## Unit testing
+-
+-```Shell
+-$ npm run test
+-```
+-
+-Tests your application with the unit tests specified in the `test` folder.
+diff --git a/RbDiffApp/docs/FILES.md b/RbDiffApp/docs/FILES.md
+deleted file mode 100644
+index cd9c9ff..0000000
+--- a/RbDiffApp/docs/FILES.md
++++ /dev/null
+@@ -1,29 +0,0 @@
+-# Files in the root folder
+-
+-* `.babelrc`: The Babel configuration. Babel is a ES6 to ES5 JavaScript transpiler, which means it's the tool that allows us to use ES6 in our applications.
+-
+-* `.eslintignore`: Tell `eslint` to ignore certain files that should not be linted. (Analyse your code for potential errors/suspicious usage)
+-
+-* `.eslintrc`: The `eslint` configuration, which checks that the JavaScript files are written in a standardised way.
+-
+-* `.gitattributes`: Normalizes how `git`, the version control system this boilerplate uses, handles certain files.
+-
+-* `.gitignore`: Tells `git` to ignore certain files and folders which don't need to be version controlled, like the build folder.
+-
+-* `.htaccess`: A default server configuration for a single page applications for the Apache web server. See the [`README`](README.md) for more information.
+-
+-* `index.html`: The HTML file that your web application uses.
+-
+-* `makewebpackconfig.js`: Generates the webpack configuration. In development mode, we add hot reloading and don't minify our code. In production mode, we minify everything.
+-
+-  * `webpack.dev.config.js`: Generates the webpack configuration for development.
+-
+-  * `webpack.prod.config.js`: Generates the webpack configuration for production.
+-
+-* `manifest.json`: On Chrome for Android (soon hopefully more browsers), users can add a webpage to the homescreen. This file specifies the name/icon/... that is displayed.
+-
+-* `package.json`: The `npm` configuration file. When you run `npm install`, this is the list that tells `npm` which packages/libraries to download. Also, `npm start`, `npm run build`,... commands are specified here.
+-
+-* `server.js`: The development server that runs when `npm start` is entered into the command line.
+-
+-* `serviceworker.js`: The script that tells the serviceworker how to cache our files for offline usage.
+diff --git a/RbDiffApp/docs/README.md b/RbDiffApp/docs/README.md
+deleted file mode 100644
+index 712d8fb..0000000
+--- a/RbDiffApp/docs/README.md
++++ /dev/null
+@@ -1,5 +0,0 @@
+-# Documentation
+-
+-* [`FILES.md`](FILES.md): The files in the root folder and what they're used for.
+-
+-* [`COMMANDS.md`](COMMANDS.md): The commands you can run in the command line.
+diff --git a/RbDiffApp/index.html b/RbDiffApp/index.html
+index 808ce72..21975eb 100644
+--- a/RbDiffApp/index.html
++++ b/RbDiffApp/index.html
+@@ -1,18 +1,14 @@
+ <!doctype html>
+-<html lang="en" manifest="manifest.appcache">
++<html lang="en">
+ 	<head>
+ 		<meta charset="utf-8">
+     	<meta name="viewport" content="width=device-width, initial-scale=1">
+-        <link rel="manifest" href="manifest.json">
+-        <meta name="mobile-web-app-capable" content="yes">
+-        <link rel="icon" sizes="124x124" href="favicon.png">
+ 		<title>React.js Boilerplate</title>
+ 	</head>
+ 	<body>
+ 		<!-- The app hooks into this div -->
+ 		<div id="app"></div>
+-		<!-- Open Sans Font -->
+-		<link href="https://fonts.googleapis.com/css?family=Open+Sans:400,700" rel="stylesheet">
+-		<!-- Due to the way webpack works, a lot of magic happens in this file. HtmlWebpackPlugin automatically includes all assets (e.g. bundle.js, main.css) with the correct HTML tags, which is why they are missing in this HTML file. Check out webpackconfig.js if you want to know more. -->
++		<!-- The JavaScript bundle -->
++		<script src="js/bundle.js"></script>
+ 	</body>
+ </html>
+diff --git a/RbDiffApp/js/README.md b/RbDiffApp/js/README.md
+deleted file mode 100644
+index 40cefc2..0000000
+--- a/RbDiffApp/js/README.md
++++ /dev/null
+@@ -1,17 +0,0 @@
+-# `js`
+-
+-## Folder Structure
+-
+-The folder structure of the JS files reflects how [Redux](https://github.com/gaearon/redux) works, so if you are not familiar with Redux check out the [official documentation](https://gaearon.github.io/redux/).
+-
+-* `actions`: Actions get dispatched with this/these utility module(s)
+-
+-* `components`: The main JS folder. All your React components should be in this folder, for big projects they might be grouped into seperate subfolders. E.g. a navigation component `Nav.react.js`
+-
+-* `components/pages`: Actual pages (routes) users can visit.
+-
+-* `constants`: Action constants need to be defined in this/these utility module(s)
+-
+-* `reducers`: Reducers manage the state of an app, basically a simplified implementation of Stores in Flux. For an introduction to reducers, watch [this talk](https://www.youtube.com/watch?v=xsSnOQynTHs) by @gaearon.
+-
+-* `app.js`: The entry point of the application. Mostly setup and boilerplate code. Routes are configured in the JSX here!
+diff --git a/RbDiffApp/js/actions/AppActions.js b/RbDiffApp/js/actions/AppActions.js
+index 77803f2..a9200dc 100644
+--- a/RbDiffApp/js/actions/AppActions.js
++++ b/RbDiffApp/js/actions/AppActions.js
+@@ -1,52 +1,5 @@
+-/*
+- * Actions change things in your application
+- * Since this boilerplate uses a uni-directional data flow, specifically redux,
+- * we have these actions which are the only way your application interacts with
+- * your appliction state. This guarantees that your state is up to date and nobody
+- * messes it up weirdly somewhere.
+- *
+- * To add a new Action:
+- * 1) Import your constant
+- * 2) Add a function like this:
+- *    export function yourAction(var) {
+- *        return { type: YOUR_ACTION_CONSTANT, var: var }
+- *    }
+- * 3) (optional) Add an async function like this:
+- *    export function asyncYourAction(var) {
+- *        return (dispatch) => {
+- *             // Do async stuff here
+- *             return dispatch(yourAction(var));
+- *        };
+- *    }
+- *
+- *    If you add an async function, remove the export from the function
+- *    created in the second step
+- */
+-
+-// Disable the no-use-before-define eslint rule for this file
+-// It makes more sense to have the asnyc actions before the non-async ones
+-/* eslint-disable no-use-before-define */
+-
+ import { CHANGE_OWNER_NAME, CHANGE_PROJECT_NAME } from '../constants/AppConstants';
+ 
+-export function asyncChangeProjectName(name) {
+-  return (dispatch) => {
+-    // You can do async stuff here!
+-    // API fetching, Animations,...
+-    // For more information as to how and why you would do this, check https://github.com/gaearon/redux-thunk
+-    return dispatch(changeProjectName(name));
+-  };
+-}
+-
+-export function asyncChangeOwnerName(name) {
+-  return (dispatch) => {
+-    // You can do async stuff here!
+-    // API fetching, Animations,...
+-    // For more information as to how and why you would do this, check https://github.com/gaearon/redux-thunk
+-    return dispatch(changeOwnerName(name));
+-  };
+-}
+-
+ export function changeProjectName(name) {
+   return { type: CHANGE_PROJECT_NAME, name };
+ }
+diff --git a/RbDiffApp/js/app.js b/RbDiffApp/js/app.js
+index ccb9a6a..77259d7 100644
+--- a/RbDiffApp/js/app.js
++++ b/RbDiffApp/js/app.js
+@@ -1,82 +1,25 @@
+-/**
+- *
+- * app.js
+- *
+- * This is the entry file for the application, mostly just setup and boilerplate
+- * code. Routes are configured at the end of this file!
+- *
+- */
+-
+-// Load the ServiceWorker, the Cache polyfill, the manifest.json file and the .htaccess file
+-import 'file?name=[name].[ext]!../serviceworker.js';
+-import 'file?name=[name].[ext]!../manifest.json';
+-import 'file?name=[name].[ext]!../.htaccess';
+-
+-// Check for ServiceWorker support before trying to install it
+-if ('serviceWorker' in navigator) {
+-  navigator.serviceWorker.register('/serviceworker.js').then(() => {
+-    // Registration was successful
+-  }).catch(() => {
+-    // Registration failed
+-  });
+-} else {
+-  // No ServiceWorker Support
+-}
+-
+-// Import all the third party stuff
+ import React from 'react';
+-import ReactDOM from 'react-dom';
++import { createStore } from 'redux';
+ import { Provider } from 'react-redux';
++import { homeReducer } from './reducers/reducers';
+ import { Router, Route } from 'react-router';
+-import { createStore, applyMiddleware } from 'redux';
+-import thunk from 'redux-thunk';
+-import FontFaceObserver from 'fontfaceobserver';
+-import createHistory from 'history/lib/createBrowserHistory';
++import { history } from 'react-router/lib/HashHistory';
+ 
+-// Observer loading of Open Sans (to remove open sans, remove the <link> tag in the index.html file and this observer)
+-const openSansObserver = new FontFaceObserver('Open Sans', {});
++import HomePage from './components/HomePage.react';
++import ReadmePage from './components/ReadmePage.react';
+ 
+-// When Open Sans is loaded, add the js-open-sans-loaded class to the body
+-openSansObserver.check().then(() => {
+-  document.body.classList.add('js-open-sans-loaded');
+-}, () => {
+-  document.body.classList.remove('js-open-sans-loaded');
+-});
+-
+-// Import the pages
+-import HomePage from './components/pages/HomePage.react';
+-import ReadmePage from './components/pages/ReadmePage.react';
+-import NotFoundPage from './components/pages/NotFound.react';
+-import App from './components/App.react';
+-
+-// Import the CSS file, which HtmlWebpackPlugin transfers to the build folder
+ import '../css/main.css';
+ 
+-// Create the store with the redux-thunk middleware, which allows us
+-// to do asynchronous things in the actions
+-import rootReducer from './reducers/rootReducer';
+-const createStoreWithMiddleware = applyMiddleware(thunk)(createStore);
+-const store = createStoreWithMiddleware(rootReducer);
+-
+-// Make reducers hot reloadable, see http://stackoverflow.com/questions/34243684/make-redux-reducers-and-other-non-components-hot-loadable
+-if (module.hot) {
+-  module.hot.accept('./reducers/rootReducer', () => {
+-    const nextRootReducer = require('./reducers/rootReducer').default;
+-    store.replaceReducer(nextRootReducer);
+-  });
+-}
++const store = createStore(homeReducer);
+ 
+-// Mostly boilerplate, except for the Routes. These are the pages you can go to,
+-// which are all wrapped in the App component, which contains the navigation etc
+-ReactDOM.render(
++React.render(
+   <Provider store={store}>
+-    <Router history={createHistory()}>
+-      <Route component={App}>
++    {() =>
++      <Router history={history}>
+         <Route path="/" component={HomePage} />
+         <Route path="/readme" component={ReadmePage} />
+-        <Route path="*" component={NotFoundPage} />
+-      </Route>
+-    </Router>
++      </Router>
++    }
+   </Provider>,
+   document.getElementById('app')
+ );
+diff --git a/RbDiffApp/js/components/App.react.js b/RbDiffApp/js/components/App.react.js
+deleted file mode 100644
+index 000ed8c..0000000
+--- a/RbDiffApp/js/components/App.react.js
++++ /dev/null
+@@ -1,34 +0,0 @@
+-/**
+- *
+- * App.react.js
+- *
+- * This component is the skeleton around the actual pages, and should only
+- * contain code that should be seen on all pages. (e.g. navigation bar)
+- */
+-
+-import React, { Component } from 'react';
+-import { connect } from 'react-redux';
+-import Logo from '../../img/logo.png';
+-
+-class App extends Component {
+-  render() {
+-    return (
+-      <div className="wrapper">
+-        <img className="logo" src={Logo} />
+-        { this.props.children }
+-      </div>
+-    );
+-  }
+-}
+-
+-// REDUX STUFF
+-
+-// Which props do we want to inject, given the global state?
+-function select(state) {
+-  return {
+-    data: state
+-  };
+-}
+-
+-// Wrap the component to inject dispatch and state into it
+-export default connect(select)(App);
+diff --git a/RbDiffApp/js/components/HomePage.react.js b/RbDiffApp/js/components/HomePage.react.js
+new file mode 100644
+index 0000000..592b587
+--- /dev/null
++++ b/RbDiffApp/js/components/HomePage.react.js
+@@ -0,0 +1,36 @@
++import { changeProjectName, changeOwnerName } from '../actions/AppActions';
++import React, { Component } from 'react';
++import { connect } from 'react-redux';
++import { Link } from 'react-router';
++
++class HomePage extends Component {
++	render() {
++    const { dispatch, projectName, ownerName } = this.props;
++    return (
++			<div className="wrapper">
++        <img className="logo" src={require('file!../../img/logo.png')} />
++				<h1>Hello World!</h1>
++        <h2>This is the <span className="home__text--red">{ projectName }</span> by <a href={'https://twitter.com/' + ownerName} >@{ ownerName }</a></h2>
++        <label className="home__label">Change to your project name:
++				  <input className="home__input" type="text" onChange={(evt) => { dispatch(changeProjectName(evt.target.value)); }} defaultValue="React.js Boilerplate" placeholder="React.js Boilerplate" />
++        </label>
++        <label className="home__label">Change to your name:
++          <input className="home__input" type="text" onChange={(evt) => { dispatch(changeOwnerName(evt.target.value)); }} defaultValue="mxstbr" placeholder="mxstbr" />
++        </label>
++        <Link to="/readme">Setup</Link>
++			</div>
++		);
++  }
++}
++
++// Which props do we want to inject, given the global state?
++// Note: use https://github.com/faassen/reselect for better performance.
++function select(state) {
++  return {
++    ownerName: state.ownerName,
++    projectName: state.projectName
++  };
++}
++
++// Wrap the component to inject dispatch and state into it
++export default connect(select)(HomePage);
+diff --git a/RbDiffApp/js/components/ReadmePage.react.js b/RbDiffApp/js/components/ReadmePage.react.js
+new file mode 100644
+index 0000000..97948a3
+--- /dev/null
++++ b/RbDiffApp/js/components/ReadmePage.react.js
+@@ -0,0 +1,14 @@
++import React, { Component} from 'react';
++import { Link } from 'react-router';
++
++export default class AboutPage extends Component {
++	render() {
++    return (
++    		<div className="wrapper">
++    			<img className="logo" src={require('file!../../img/logo.png')} />
++				<h2>About</h2>
++				<Link to="/">Home</Link>
++			</div>
++		);
++  }
++}
+diff --git a/RbDiffApp/js/components/pages/HomePage.react.js b/RbDiffApp/js/components/pages/HomePage.react.js
+deleted file mode 100644
+index 58fbbd4..0000000
+--- a/RbDiffApp/js/components/pages/HomePage.react.js
++++ /dev/null
+@@ -1,41 +0,0 @@
+-/*
+- * HomePage
+- * This is the first thing users see of our App
+- */
+-
+-import { asyncChangeProjectName, asyncChangeOwnerName } from '../../actions/AppActions';
+-import React, { Component } from 'react';
+-import { connect } from 'react-redux';
+-import { Link } from 'react-router';
+-
+-class HomePage extends Component {
+-	render() {
+-		const dispatch = this.props.dispatch;
+-		const { projectName, ownerName } = this.props.data;
+-		return (
+-			<div>
+-				<h1>Hello World!</h1>
+-        <h2>This is the demo for the <span className="home__text--red">{ projectName }</span> by <a href={'https://twitter.com/' + ownerName} >@{ ownerName }</a></h2>
+-        <label className="home__label">Change to your project name:
+-					<input className="home__input" type="text" onChange={(evt) => { dispatch(asyncChangeProjectName(evt.target.value)); }} defaultValue="React.js Boilerplate" value={projectName} />
+-        </label>
+-        <label className="home__label">Change to your name:
+-          <input className="home__input" type="text" onChange={(evt) => { dispatch(asyncChangeOwnerName(evt.target.value)); }} defaultValue="mxstbr" value={ownerName} />
+-        </label>
+-        <Link className="btn" to="/readme">Setup</Link>
+-			</div>
+-		);
+-	}
+-}
+-
+-// REDUX STUFF
+-
+-// Which props do we want to inject, given the global state?
+-function select(state) {
+-  return {
+-    data: state
+-  };
+-}
+-
+-// Wrap the component to inject dispatch and state into it
+-export default connect(select)(HomePage);
+diff --git a/RbDiffApp/js/components/pages/NotFound.react.js b/RbDiffApp/js/components/pages/NotFound.react.js
+deleted file mode 100644
+index ea2c914..0000000
+--- a/RbDiffApp/js/components/pages/NotFound.react.js
++++ /dev/null
+@@ -1,15 +0,0 @@
+-import React, { Component } from 'react';
+-import { Link } from 'react-router';
+-
+-class NotFound extends Component {
+-  render() {
+-    return (
+-      <article>
+-        <h1>Page not found.</h1>
+-        <Link to="/" className="btn">Home</Link>
+-      </article>
+-    );
+-  }
+-}
+-
+-export default NotFound;
+diff --git a/RbDiffApp/js/components/pages/ReadmePage.react.js b/RbDiffApp/js/components/pages/ReadmePage.react.js
+deleted file mode 100644
+index ea9e88b..0000000
+--- a/RbDiffApp/js/components/pages/ReadmePage.react.js
++++ /dev/null
+@@ -1,29 +0,0 @@
+-/*
+- * ReadmePage
+- *
+- * This is the page users see when they click the "Setup" button on the HomePage
+- */
+-
+-import React, { Component} from 'react';
+-import { Link } from 'react-router';
+-
+-export default class AboutPage extends Component {
+-	render() {
+-		return (
+-			<div>
+-				<h2>Further Setup</h2>
+-				<p>Assuming you have already cloned the repo and ran all the commands from the README (otherwise you would not be here), these are the further steps:</p>
+-
+-				<ol>
+-					<li>Replace my name and the package name in the package.json file</li>
+-					<li>Replace the two components with your first component</li>
+-					<li>Replace the default actions with your first action</li>
+-					<li>Delete css/components/_home.css and add the styling for your component</li>
+-					<li>And finally, update the unit tests</li>
+-				</ol>
+-
+-				<Link className="btn" to="/">Home</Link>
+-			</div>
+-		);
+-	}
+-}
+diff --git a/RbDiffApp/js/constants/AppConstants.js b/RbDiffApp/js/constants/AppConstants.js
+index 4deae2f..ae94da7 100644
+--- a/RbDiffApp/js/constants/AppConstants.js
++++ b/RbDiffApp/js/constants/AppConstants.js
+@@ -1,10 +1,2 @@
+-/*
+- * AppConstants
+- * These are the variables that determine what our central data store (reducer.js)
+- * changes in our state. When you add a new action, you have to add a new constant here
+- *
+- * Follow this format:
+- * export const YOUR_ACTION_CONSTANT = 'YOUR_ACTION_CONSTANT';
+- */
+ export const CHANGE_PROJECT_NAME = 'CHANGE_PROJECT_NAME';
+ export const CHANGE_OWNER_NAME = 'CHANGE_OWNER_NAME';
+diff --git a/RbDiffApp/js/reducers/homeReducer.js b/RbDiffApp/js/reducers/homeReducer.js
+deleted file mode 100644
+index 4252118..0000000
+--- a/RbDiffApp/js/reducers/homeReducer.js
++++ /dev/null
+@@ -1,40 +0,0 @@
+-/*
+- * The reducer takes care of our data
+- * Using actions, we can change our application state
+- * To add a new action, add it to the switch statement in the homeReducer function
+- *
+- * Example:
+- * case YOUR_ACTION_CONSTANT:
+- *   return assign({}, state, {
+- *       stateVariable: action.var
+- *   });
+- *
+- * To add a new reducer, add a file like this to the reducers folder, and
+- * add it in the rootReducer.js.
+- */
+-
+-import { CHANGE_OWNER_NAME, CHANGE_PROJECT_NAME } from '../constants/AppConstants';
+-const assign = Object.assign || require('object.assign'); // Polyfill maybe needed for browser support
+-
+-const initialState = {
+-  projectName: 'React.js Boilerplate',
+-  ownerName: 'mxstbr'
+-};
+-
+-function homeReducer(state = initialState, action) {
+-  Object.freeze(state); // Don't mutate state directly, always use assign()!
+-  switch (action.type) {
+-    case CHANGE_OWNER_NAME:
+-      return assign({}, state, {
+-        ownerName: action.name
+-      });
+-    case CHANGE_PROJECT_NAME:
+-      return assign({}, state, {
+-        projectName: action.name
+-      });
+-    default:
+-      return state;
+-  }
+-}
+-
+-export default homeReducer;
+diff --git a/RbDiffApp/js/reducers/reducers.js b/RbDiffApp/js/reducers/reducers.js
+new file mode 100644
+index 0000000..9ba5f30
+--- /dev/null
++++ b/RbDiffApp/js/reducers/reducers.js
+@@ -0,0 +1,22 @@
++import { CHANGE_OWNER_NAME, CHANGE_PROJECT_NAME } from '../constants/AppConstants';
++import assign from 'react/lib/Object.assign';
++
++const initialState = {
++  projectName: 'React.js Boilerplate',
++  ownerName: 'mxstbr'
++};
++
++export function homeReducer(state = initialState, action) {
++  switch (action.type) {
++  case CHANGE_OWNER_NAME:
++    return assign({}, state, {
++      ownerName: action.name
++    });
++  case CHANGE_PROJECT_NAME:
++    return assign({}, state, {
++      projectName: action.name
++    });
++  default:
++    return state;
++  }
++}
+diff --git a/RbDiffApp/js/reducers/rootReducer.js b/RbDiffApp/js/reducers/rootReducer.js
+deleted file mode 100644
+index 6ec6b02..0000000
+--- a/RbDiffApp/js/reducers/rootReducer.js
++++ /dev/null
+@@ -1,13 +0,0 @@
+-/**
+- * Combine all reducers in this file and export the combined reducers.
+- * If we were to do this in store.js, reducers wouldn't be hot reloadable.
+- */
+-
+-import homeReducer from './homeReducer';
+-
+-// Replace line below once you have several reducers with
+-// import { combineReducers } from 'redux';
+-// const rootReducer = combineReducers({ homeReducer, yourReducer })
+-const rootReducer = homeReducer;
+-
+-export default rootReducer;
+diff --git a/RbDiffApp/makewebpackconfig.js b/RbDiffApp/makewebpackconfig.js
+deleted file mode 100644
+index 671e402..0000000
+--- a/RbDiffApp/makewebpackconfig.js
++++ /dev/null
+@@ -1,114 +0,0 @@
+-var path = require('path');
+-var webpack = require('webpack');
+-var HtmlWebpackPlugin = require('html-webpack-plugin');
+-var AppCachePlugin = require('appcache-webpack-plugin');
+-var ExtractTextPlugin = require("extract-text-webpack-plugin");
+-
+-module.exports = function(options) {
+-  var entry, jsLoaders, plugins, cssLoaders;
+-
+-  // If production is true
+-  if (options.prod) {
+-    // Entry
+-    entry = [
+-      path.resolve(__dirname, 'js/app.js') // Start with js/app.js...
+-    ];
+-    cssLoaders = ExtractTextPlugin.extract('style-loader', 'css-loader!postcss-loader');
+-    // Plugins
+-    plugins = [// Plugins for Webpack
+-      new webpack.optimize.UglifyJsPlugin({ // Optimize the JavaScript...
+-        compress: {
+-          warnings: false // ...but do not show warnings in the console (there is a lot of them)
+-        }
+-      }),
+-      new HtmlWebpackPlugin({
+-        template: 'index.html', // Move the index.html file...
+-        minify: { // Minifying it while it is parsed
+-          removeComments: true,
+-          collapseWhitespace: true,
+-          removeRedundantAttributes: true,
+-          useShortDoctype: true,
+-          removeEmptyAttributes: true,
+-          removeStyleLinkTypeAttributes: true,
+-          keepClosingSlash: true,
+-          minifyJS: true,
+-          minifyCSS: true,
+-          minifyURLs: true
+-        },
+-        inject: true // inject all files that are generated by webpack, e.g. bundle.js, main.css with the correct HTML tags
+-      }),
+-      new ExtractTextPlugin("css/main.css"),
+-      new webpack.DefinePlugin({
+-        "process.env": {
+-          NODE_ENV: JSON.stringify("production")
+-        }
+-      })
+-    ];
+-
+-  // If app is in development
+-  } else {
+-    // Entry
+-    entry = [
+-      "webpack-dev-server/client?http://localhost:3000", // Needed for hot reloading
+-      "webpack/hot/only-dev-server", // See above
+-      path.resolve(__dirname, 'js/app.js') // Start with js/app.js...
+-    ];
+-    cssLoaders = 'style-loader!css-loader!postcss-loader';
+-    // Only plugin is the hot module replacement plugin
+-    plugins = [
+-      new webpack.HotModuleReplacementPlugin(), // Make hot loading work
+-      new HtmlWebpackPlugin({
+-        template: 'index.html', // Move the index.html file
+-        inject: true // inject all files that are generated by webpack, e.g. bundle.js, main.css with the correct HTML tags
+-      })
+-    ]
+-  }
+-
+-  plugins.push(new AppCachePlugin({ // AppCache should be in both prod and dev env
+-    exclude: ['.htaccess'] // No need to cache that. See https://support.hostgator.com/articles/403-forbidden-or-no-permission-to-access
+-  }));
+-
+-  return {
+-    entry: entry,
+-    output: { // Compile into js/build.js
+-      path: path.resolve(__dirname, 'build'),
+-      filename: "js/bundle.js"
+-    },
+-    module: {
+-      loaders: [{
+-          test: /\.js$/, // Transform all .js files required somewhere within an entry point...
+-          loader: 'babel', // ...with the specified loaders...
+-          exclude: path.join(__dirname, '/node_modules/') // ...except for the node_modules folder.
+-        }, {
+-          test:   /\.css$/, // Transform all .css files required somewhere within an entry point...
+-          loader: cssLoaders // ...with PostCSS
+-        }, {
+-          test: /\.jpe?g$|\.gif$|\.png$/i,
+-          loader: "url-loader?limit=10000"
+-        }
+-      ]
+-    },
+-    plugins: plugins,
+-    postcss: function() {
+-      return [
+-        require('postcss-import')({ // Import all the css files...
+-          glob: true,
+-          onImport: function (files) {
+-              files.forEach(this.addDependency); // ...and add dependecies from the main.css files to the other css files...
+-          }.bind(this) // ...so they get hot–reloaded when something changes...
+-        }),
+-        require('postcss-simple-vars')(), // ...then replace the variables...
+-        require('postcss-focus')(), // ...add a :focus to ever :hover...
+-        require('autoprefixer')({ // ...and add vendor prefixes...
+-          browsers: ['last 2 versions', 'IE > 8'] // ...supporting the last 2 major browser versions and IE 8 and up...
+-        }),
+-        require('postcss-reporter')({ // This plugin makes sure we get warnings in the console
+-          clearMessages: true
+-        })
+-      ];
+-    },
+-    target: "web", // Make web variables accessible to webpack, e.g. window
+-    stats: false, // Don't show stats in the console
+-    progress: true
+-  }
+-}
+diff --git a/RbDiffApp/manifest.json b/RbDiffApp/manifest.json
+deleted file mode 100644
+index e07264b..0000000
+--- a/RbDiffApp/manifest.json
++++ /dev/null
+@@ -1,33 +0,0 @@
+-{
+-  "name": "React Boilerplate",
+-  "icons": [
+-    {
+-      "src": "favicon.png",
+-      "sizes": "48x48",
+-      "type": "image/png",
+-      "density": 1.0
+-    },
+-    {
+-      "src": "favicon.png",
+-      "sizes": "96x96",
+-      "type": "image/png",
+-      "density": 2.0
+-    },
+-    {
+-      "src": "favicon.png",
+-      "sizes": "144x144",
+-      "type": "image/png",
+-      "density": 3.0
+-    },
+-    {
+-      "src": "favicon.png",
+-      "sizes": "192x192",
+-      "type": "image/png",
+-      "density": 4.0
+-    }
+-  ],
+-  "start_url": "index.html",
+-  "display": "standalone",
+-  "orientation": "portrait",
+-  "background_color": "#FFFFFF"
+-}
+\ No newline at end of file
+diff --git a/RbDiffApp/package.json b/RbDiffApp/package.json
+index 3f4886d..f11c37b 100644
+--- a/RbDiffApp/package.json
++++ b/RbDiffApp/package.json
+@@ -1,59 +1,46 @@
+ {
+   "name": "reactjs-boilerplate",
+-  "version": "2.4.0",
++  "version": "2.0.0",
+   "description": "Quick setup for new React.js applications featuring Redux, hot–reloading, PostCSS, react-router and Mocha.",
+   "dependencies": {
+-    "fontfaceobserver": "^1.5.1",
+-    "history": "1.13.1",
+-    "react": "^0.14.2",
+-    "react-dom": "^0.14.2",
+-    "react-redux": "^4.0.0",
+-    "react-router": "^1.0.0",
+-    "redux": "^3.0.0",
+-    "redux-thunk": "^1.0.0"
++    "flux": "^2.0.0",
++    "react": "^0.13.0",
++    "react-redux": "^0.2.2",
++    "react-router": "^1.0.0-beta3",
++    "redux": "^1.0.0-rc"
+   },
+   "devDependencies": {
+-    "appcache-webpack-plugin": "^1.2.0",
+-    "autoprefixer": "^6.0.2",
+-    "babel": "^6.0.0",
+-    "babel-core": "^6.0.0",
+-    "babel-eslint": "^4.1.2",
+-    "babel-loader": "^6.0.0",
+-    "babel-plugin-react-transform": "2.0.0-beta1",
+-    "babel-preset-es2015": "^6.0.0",
+-    "babel-preset-react": "^6.0.0",
+-    "babel-preset-stage-2": "^6.0.0",
+-    "css-loader": "^0.23.0",
+-    "cssnano": "^3.0.1",
+-    "eslint": "^1.4.1",
+-    "eslint-config-airbnb": "1.0.0",
+-    "eslint-plugin-react": "^3.3.2",
+-    "expect": "^1.10.0",
+-    "extract-text-webpack-plugin": "0.9.1",
++    "autoprefixer-core": "^5.2.1",
++    "babel-core": "^5.8.20",
++    "babel-eslint": "^4.0.5",
++    "babel-loader": "^5.3.2",
++    "css-loader": "^0.15.6",
++    "cssnano": "^2.1.1",
++    "eslint": "^1.0.0",
++    "eslint-config-airbnb": "0.0.7",
++    "eslint-plugin-react": "^3.2.0",
++    "expect": "^1.8.0",
+     "file-loader": "^0.8.4",
+     "html-webpack-plugin": "^1.6.1",
+-    "json-loader": "^0.5.2",
+-    "mocha": "^2.3.2",
+-    "object.assign": "^4.0.1",
+-    "postcss-focus": "^1.0.0",
+-    "postcss-import": "^7.0.0",
+-    "postcss-loader": "^0.8.0",
+-    "postcss-reporter": "^1.2.1",
+-    "postcss-simple-vars": "^1.0.0",
+-    "react-transform-hmr": "^1.0.1",
+-    "style-loader": "^0.13.0",
+-    "url-loader": "^0.5.6",
+-    "webpack": "^1.12.1",
+-    "webpack-dev-server": "^1.11.0"
++    "mocha": "^2.2.5",
++    "postcss-focus": "^0.1.1",
++    "postcss-import": "^6.2.0",
++    "postcss-loader": "^0.5.1",
++    "postcss-reporter": "^0.4.0",
++    "postcss-simple-vars": "^0.3.0",
++    "react-hot-loader": "^1.2.8",
++    "style-loader": "^0.12.3",
++    "webpack": "^1.10.5",
++    "webpack-dev-server": "^1.10.1"
+   },
+   "repository": {
+     "type": "git",
+     "url": "git://github.com/mxstbr/react-boilerplate.git"
+   },
+   "scripts": {
+-    "test": "mocha --compilers js:babel-core/register --recursive",
+-    "start": "NODE_ENV=development node server.js",
+-    "build": "npm run test && NODE_ENV=production webpack --config webpack.prod.config.js --progress --colors -p"
++    "test": "mocha --compilers js:babel/register --recursive",
++    "start": "node server.js",
++    "build": "webpack --config webpack.build.config.js --progress --colors -p"
+   },
+   "author": "Max Stoiber",
+   "license": "MIT"
+diff --git a/RbDiffApp/server.js b/RbDiffApp/server.js
+index e3e8f6f..756aca4 100644
+--- a/RbDiffApp/server.js
++++ b/RbDiffApp/server.js
+@@ -2,9 +2,7 @@
+ 
+ var webpack = require('webpack');
+ var WebpackDevServer = require('webpack-dev-server');
+-var config = require('./webpack.dev.config');
+-
+-console.log('Starting server...\n');
++var config = require('./webpack.config');
+ 
+ new WebpackDevServer(webpack(config), { // Start a server
+   publicPath: config.output.publicPath,
+@@ -15,8 +13,7 @@ new WebpackDevServer(webpack(config), { // Start a server
+ }).listen(3000, 'localhost', function (err, result) {
+   if (err) {
+     console.log(err);
+-  } else {
+-    console.log('Server started');
+-    console.log('Listening at localhost:3000');
+   }
+-});
++
++  console.log('Listening at localhost:3000');
++});
+\ No newline at end of file
+diff --git a/RbDiffApp/serviceworker.js b/RbDiffApp/serviceworker.js
+deleted file mode 100644
+index 43a8b5c..0000000
+--- a/RbDiffApp/serviceworker.js
++++ /dev/null
+@@ -1,62 +0,0 @@
+-var CACHE_NAME = 'react-boilerplate-cache-v1';
+-// The files we want to cache
+-var urlsToCache = [
+-  '/',
+-  '/css/main.css',
+-  '/js/bundle.js'
+-];
+-
+-// Set the callback for the install step
+-self.addEventListener('install', function(event) {
+-    // Perform install steps
+-    // event.waitUntil(
+-    caches.open(CACHE_NAME)
+-      .then(function(cache) {
+-        console.log('Opened cache');
+-        return cache.addAll(urlsToCache);
+-      });
+-});
+-
+-// Set the callback when the files get fetched
+-self.addEventListener('fetch', function(event) {
+-  event.respondWith(
+-    caches.match(event.request)
+-      .then(function(response) {
+-        // Cached files available, return those
+-        if (response) {
+-          return response;
+-        }
+-
+-        // IMPORTANT: Clone the request. A request is a stream and
+-        // can only be consumed once. Since we are consuming this
+-        // once by cache and once by the browser for fetch, we need
+-        // to clone the response
+-        var fetchRequest = event.request.clone();
+-
+-        // Start request again since there are no files in the cache
+-        return fetch(fetchRequest).then(
+-          function(response) {
+-            // If response is invalid, throw error
+-            if(!response || response.status !== 200 || response.type !== 'basic') {
+-              return response;
+-            }
+-
+-            // IMPORTANT: Clone the response. A response is a stream
+-            // and because we want the browser to consume the response
+-            // as well as the cache consuming the response, we need
+-            // to clone it so we have 2 stream.
+-            var responseToCache = response.clone();
+-
+-            // Otherwise cache the downloaded files
+-            caches.open(CACHE_NAME)
+-              .then(function(cache) {
+-                cache.put(event.request, responseToCache);
+-              });
+-
+-            // And return the network response
+-            return response;
+-          }
+-        );
+-      })
+-    );
+-});
+diff --git a/RbDiffApp/test/reducers.test.js b/RbDiffApp/test/reducers.test.js
+index 058a3e5..a3dccc0 100644
+--- a/RbDiffApp/test/reducers.test.js
++++ b/RbDiffApp/test/reducers.test.js
+@@ -1,5 +1,5 @@
+ import expect from 'expect';
+-import homeReducer from '../js/reducers/homeReducer';
++import { homeReducer } from '../js/reducers/reducers';
+ import * as constants from '../js/constants/AppConstants';
+ 
+ // Test Reducer
+diff --git a/RbDiffApp/webpack.build.config.js b/RbDiffApp/webpack.build.config.js
+new file mode 100644
+index 0000000..6af0557
+--- /dev/null
++++ b/RbDiffApp/webpack.build.config.js
+@@ -0,0 +1,67 @@
++var path = require('path');
++var webpack = require('webpack');
++var HtmlWebpackPlugin = require('html-webpack-plugin');
++
++module.exports = {
++  entry: [
++    path.resolve(__dirname, 'js/app.js') // Start with js/app.js...
++  ],
++  output: { // ...and compile it into the build folder
++    path: path.resolve(__dirname, 'build'),
++    filename: "js/bundle.js"
++  },
++  module: {
++    loaders: [{
++        test: /\.js$/, // Transform all .js files required somewhere within an entry point...
++        loaders: ['react-hot', 'babel'], // ...with babel and react-hot...
++        exclude: path.join(__dirname, '/node_modules/') // ...except for the node_modules folder.
++      }, {
++        test:   /\.css$/, // Transform all .css files required somewhere within an entry point...
++        loader: "style-loader!css-loader!postcss-loader" // ...with PostCSS
++      }
++    ]
++  },
++  postcss: function() {
++    return [
++      require('postcss-import')(), // Import all the css files...
++      require('postcss-simple-vars')(), // ...then replace the variables...
++      require('postcss-focus')(), // ...add a :focus to ever :hover...
++      require('autoprefixer-core')({ // ...add vendor prefixes...
++        browsers: ['last 2 versions', 'IE > 8'] // ...supporting the last 2 major browser versions and IE 8 and up...
++      }),
++      require('cssnano')({ // ...and minify the result.
++        autoprefixer: false, // Don't run autoprefixer since we've already done that...
++        comments: {
++          removeAll: true // ...and remove all comments, even those marked important.
++        }
++      }),
++      require('postcss-reporter')({ // This plugin makes sure we get warnings in the console
++        clearMessages: true
++      })
++    ];
++  },
++  plugins: [ // Plugins for Webpack
++    new webpack.optimize.UglifyJsPlugin({ // Optimize the JavaScript...
++      compress: {
++        warnings: false // ...but do not show warnings in the console (there is a lot of them)
++      }
++    }),
++    new HtmlWebpackPlugin({
++      template: 'index.html', // Move the index.html file...
++      minify: { // Minifying it while it is parsed using the following, self–explanatory options
++        removeComments: true,
++        collapseWhitespace: true,
++        removeRedundantAttributes: true,
++        useShortDoctype: true,
++        removeEmptyAttributes: true,
++        removeStyleLinkTypeAttributes: true,
++        keepClosingSlash: true,
++        minifyJS: true,
++        minifyCSS: true,
++        minifyURLs: true
++      }
++    }),
++    new webpack.NoErrorsPlugin() // No assets get emitted that throw errors
++  ],
++  target: "web", // Make web variables accessible to webpack, e.g. window
++}
+\ No newline at end of file
+diff --git a/RbDiffApp/webpack.config.js b/RbDiffApp/webpack.config.js
+new file mode 100644
+index 0000000..82fba43
+--- /dev/null
++++ b/RbDiffApp/webpack.config.js
+@@ -0,0 +1,50 @@
++var path = require('path');
++var webpack = require('webpack');
++
++module.exports = {
++	entry: [
++		"webpack-dev-server/client?http://localhost:3000", // Needed for hot reloading
++		"webpack/hot/only-dev-server", // See above
++		path.resolve(__dirname, 'js/app.js') // Start with js/app.js...
++	],
++	output: { // ...and compile it into js/bundle.js
++		path: path.resolve(__dirname, 'js/'),
++    filename: "bundle.js",
++    publicPath: '/js/'
++	},
++	module: {
++    loaders: [{
++    		test: /\.js$/, // Transform all .js files required somewhere within an entry point...
++    		loaders: ['react-hot', 'babel'], // ...with babel and react-hot...
++    		exclude: path.join(__dirname, '/node_modules/') // ...except for the node_modules folder.
++    	}, {
++        test:   /\.css$/, // Transform all .css files required somewhere within an entry point...
++        loader: "style-loader!css-loader!postcss-loader" // ...with PostCSS
++      }
++    ]
++	},
++	postcss: function() {
++		return [
++			require('postcss-import')({ // Import all the css files...
++        onImport: function (files) {
++            files.forEach(this.addDependency); // ...and add dependecies from the main.css files to the other css files...
++        }.bind(this) // ...so they get hot–reloaded when something changes...
++      }),
++     	require('postcss-simple-vars')(), // ...then replace the variables...
++     	require('postcss-focus')(), // ...add a :focus to ever :hover...
++     	require('autoprefixer-core')({ // ...and add vendor prefixes...
++     		browsers: ['last 2 versions', 'IE > 8'] // ...supporting the last 2 major browser versions and IE 8 and up...
++     	}),
++     	require('postcss-reporter')({ // This plugin makes sure we get warnings in the console
++     		clearMessages: true
++     	})
++		];
++	},
++	plugins: [
++		new webpack.HotModuleReplacementPlugin(), // Make hot loading work
++		new webpack.NoErrorsPlugin() // No assets get emitted that throw errors
++	],
++	target: "web", // Make web variables accessible to webpack, e.g. window
++	stats: false, // Don't show stats in the console
++	progress: true
++}
+\ No newline at end of file
+diff --git a/RbDiffApp/webpack.dev.config.js b/RbDiffApp/webpack.dev.config.js
+deleted file mode 100644
+index c720c6f..0000000
+--- a/RbDiffApp/webpack.dev.config.js
++++ /dev/null
+@@ -1,3 +0,0 @@
+-module.exports = require("./makewebpackconfig")({
+-  prod: false
+-});
+\ No newline at end of file
+diff --git a/RbDiffApp/webpack.prod.config.js b/RbDiffApp/webpack.prod.config.js
+deleted file mode 100644
+index 9671c03..0000000
+--- a/RbDiffApp/webpack.prod.config.js
++++ /dev/null
+@@ -1,3 +0,0 @@
+-module.exports = require("./makewebpackconfig")({
+-  prod: true
+-});
+\ No newline at end of file
