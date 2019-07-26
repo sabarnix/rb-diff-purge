@@ -1,0 +1,146 @@
+diff --git a/RbDiffApp/app/components/Toggle/index.js b/RbDiffApp/app/components/Toggle/index.js
+index d9d02b9..507623c 100644
+--- a/RbDiffApp/app/components/Toggle/index.js
++++ b/RbDiffApp/app/components/Toggle/index.js
+@@ -20,7 +20,7 @@ function Toggle(props) {
+   }
+ 
+   return (
+-    <Select value={props.value} onChange={props.onToggle}>
++    <Select onChange={props.onToggle}>
+       {content}
+     </Select>
+   );
+@@ -29,7 +29,6 @@ function Toggle(props) {
+ Toggle.propTypes = {
+   onToggle: React.PropTypes.func,
+   values: React.PropTypes.array,
+-  value: React.PropTypes.string,
+   messages: React.PropTypes.object,
+ };
+ 
+diff --git a/RbDiffApp/app/containers/LanguageProvider/reducer.js b/RbDiffApp/app/containers/LanguageProvider/reducer.js
+index c2971ba..2908bcc 100644
+--- a/RbDiffApp/app/containers/LanguageProvider/reducer.js
++++ b/RbDiffApp/app/containers/LanguageProvider/reducer.js
+@@ -8,12 +8,9 @@ import { fromJS } from 'immutable';
+ import {
+   CHANGE_LOCALE,
+ } from './constants';
+-import {
+-  DEFAULT_LOCALE,
+-} from '../App/constants';
+ 
+ const initialState = fromJS({
+-  locale: DEFAULT_LOCALE,
++  locale: 'en',
+ });
+ 
+ function languageProviderReducer(state = initialState, action) {
+diff --git a/RbDiffApp/app/containers/LocaleToggle/index.js b/RbDiffApp/app/containers/LocaleToggle/index.js
+index 14ecad3..04b18e3 100644
+--- a/RbDiffApp/app/containers/LocaleToggle/index.js
++++ b/RbDiffApp/app/containers/LocaleToggle/index.js
+@@ -19,7 +19,7 @@ export class LocaleToggle extends React.PureComponent { // eslint-disable-line r
+   render() {
+     return (
+       <Wrapper>
+-        <Toggle value={this.props.locale} values={appLocales} messages={messages} onToggle={this.props.onLocaleToggle} />
++        <Toggle values={appLocales} messages={messages} onToggle={this.props.onLocaleToggle} />
+       </Wrapper>
+     );
+   }
+@@ -27,7 +27,6 @@ export class LocaleToggle extends React.PureComponent { // eslint-disable-line r
+ 
+ LocaleToggle.propTypes = {
+   onLocaleToggle: React.PropTypes.func,
+-  locale: React.PropTypes.string,
+ };
+ 
+ const mapStateToProps = createSelector(
+diff --git a/RbDiffApp/internals/config.js b/RbDiffApp/internals/config.js
+index 3a76362..f1881b6 100644
+--- a/RbDiffApp/internals/config.js
++++ b/RbDiffApp/internals/config.js
+@@ -4,7 +4,7 @@ const uniq = require('lodash/uniq');
+ 
+ const ReactBoilerplate = {
+   // This refers to the react-boilerplate version this project is based on.
+-  version: '3.3.3',
++  version: '3.3.1:',
+ 
+   /**
+    * The DLL Plugin provides a dramatic speed increase to webpack build and hot module reloading
+diff --git a/RbDiffApp/internals/generators/language/app-locale.hbs b/RbDiffApp/internals/generators/language/app-locale.hbs
+index 08753eb..9e99e84 100644
+--- a/RbDiffApp/internals/generators/language/app-locale.hbs
++++ b/RbDiffApp/internals/generators/language/app-locale.hbs
+@@ -1 +1,2 @@
+-$1  '{{language}}',
++$1
++  '{{language}}',
+diff --git a/RbDiffApp/internals/generators/language/index.js b/RbDiffApp/internals/generators/language/index.js
+index d584e89..9697996 100644
+--- a/RbDiffApp/internals/generators/language/index.js
++++ b/RbDiffApp/internals/generators/language/index.js
+@@ -30,7 +30,7 @@ module.exports = {
+     actions.push({
+       type: 'modify',
+       path: '../../app/i18n.js',
+-      pattern: /(\s+'[a-z]+',\n)(?!.*\s+'[a-z]+',)/g,
++      pattern: /([\n\s'[a-z]+',)(?!.*[\n\s'[a-z]+',)/g,
+       templateFile: './language/app-locale.hbs',
+     });
+     actions.push({
+diff --git a/RbDiffApp/internals/templates/i18n.js b/RbDiffApp/internals/templates/i18n.js
+index 9f10584..f02dcd9 100644
+--- a/RbDiffApp/internals/templates/i18n.js
++++ b/RbDiffApp/internals/templates/i18n.js
+@@ -5,7 +5,7 @@
+  *
+  */
+ import { addLocaleData } from 'react-intl';
+-import { DEFAULT_LOCALE } from './containers/App/constants'; // eslint-disable-line
++import { DEFAULT_LOCALE } from 'containers/App/constants';
+ 
+ import enLocaleData from 'react-intl/locale-data/en';
+ 
+diff --git a/RbDiffApp/internals/templates/languageProvider/constants.js b/RbDiffApp/internals/templates/languageProvider/constants.js
+index 46b453a..7d2f425 100644
+--- a/RbDiffApp/internals/templates/languageProvider/constants.js
++++ b/RbDiffApp/internals/templates/languageProvider/constants.js
+@@ -5,4 +5,3 @@
+  */
+ 
+ export const CHANGE_LOCALE = 'app/LanguageToggle/CHANGE_LOCALE';
+-export const DEFAULT_LOCALE = 'en';
+diff --git a/RbDiffApp/internals/templates/languageProvider/reducer.js b/RbDiffApp/internals/templates/languageProvider/reducer.js
+index 205b72e..2908bcc 100644
+--- a/RbDiffApp/internals/templates/languageProvider/reducer.js
++++ b/RbDiffApp/internals/templates/languageProvider/reducer.js
+@@ -8,12 +8,9 @@ import { fromJS } from 'immutable';
+ import {
+   CHANGE_LOCALE,
+ } from './constants';
+-import {
+-  DEFAULT_LOCALE,
+-} from '../App/constants'; // eslint-disable-line
+ 
+ const initialState = fromJS({
+-  locale: DEFAULT_LOCALE,
++  locale: 'en',
+ });
+ 
+ function languageProviderReducer(state = initialState, action) {
+diff --git a/RbDiffApp/package.json b/RbDiffApp/package.json
+index b8cc9b2..834bfd5 100644
+--- a/RbDiffApp/package.json
++++ b/RbDiffApp/package.json
+@@ -1,6 +1,6 @@
+ {
+   "name": "react-boilerplate",
+-  "version": "3.3.3",
++  "version": "3.3.1",
+   "description": "A highly scalable, offline-first foundation with the best DX and a focus on performance and best practices",
+   "repository": {
+     "type": "git",
