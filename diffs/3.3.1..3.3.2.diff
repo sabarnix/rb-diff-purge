@@ -1,0 +1,42 @@
+diff --git a/RbDiffApp/app/components/Toggle/index.js b/RbDiffApp/app/components/Toggle/index.js
+index 507623c..d9d02b9 100644
+--- a/RbDiffApp/app/components/Toggle/index.js
++++ b/RbDiffApp/app/components/Toggle/index.js
+@@ -20,7 +20,7 @@ function Toggle(props) {
+   }
+ 
+   return (
+-    <Select onChange={props.onToggle}>
++    <Select value={props.value} onChange={props.onToggle}>
+       {content}
+     </Select>
+   );
+@@ -29,6 +29,7 @@ function Toggle(props) {
+ Toggle.propTypes = {
+   onToggle: React.PropTypes.func,
+   values: React.PropTypes.array,
++  value: React.PropTypes.string,
+   messages: React.PropTypes.object,
+ };
+ 
+diff --git a/RbDiffApp/app/containers/LocaleToggle/index.js b/RbDiffApp/app/containers/LocaleToggle/index.js
+index 04b18e3..14ecad3 100644
+--- a/RbDiffApp/app/containers/LocaleToggle/index.js
++++ b/RbDiffApp/app/containers/LocaleToggle/index.js
+@@ -19,7 +19,7 @@ export class LocaleToggle extends React.PureComponent { // eslint-disable-line r
+   render() {
+     return (
+       <Wrapper>
+-        <Toggle values={appLocales} messages={messages} onToggle={this.props.onLocaleToggle} />
++        <Toggle value={this.props.locale} values={appLocales} messages={messages} onToggle={this.props.onLocaleToggle} />
+       </Wrapper>
+     );
+   }
+@@ -27,6 +27,7 @@ export class LocaleToggle extends React.PureComponent { // eslint-disable-line r
+ 
+ LocaleToggle.propTypes = {
+   onLocaleToggle: React.PropTypes.func,
++  locale: React.PropTypes.string,
+ };
+ 
+ const mapStateToProps = createSelector(
