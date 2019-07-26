@@ -47,7 +47,8 @@ function generateNewReleaseBranch () {
     git checkout -b "$branchName"
 
     # generate app
-    git clone --branch "$newRelease" --depth 1 git@github.com:react-boilerplate/react-boilerplate.git "$AppName" 
+    git clone --branch v"$newRelease" --depth 1 git@github.com:react-boilerplate/react-boilerplate.git "$AppName" 
+    rm -rf "$AppName"/.git
 
     # commit and push branch
     git add "$AppName"
@@ -80,6 +81,7 @@ function generateDiffs () {
     fi
 
     cd wt-diffs
+    mkdir -p diffs
     git pull
     cd ..
 
@@ -93,7 +95,7 @@ function generateDiffs () {
     cd wt-diffs
     git add .
     git commit -m "Add release $newRelease diffs"
-    git push
+    git push --force
     cd ..
 }
 
@@ -131,7 +133,7 @@ function generateReadme () {
 
 function generateGHPages () {
     cp docs/_index.html docs/index.html
-    yarn --silent markdown "$ReadmeTableBig" >> docs/index.html
+    yarn markdown "$ReadmeTableBig"  --silent >> docs/index.html
 }
 
 function cleanUp () {
