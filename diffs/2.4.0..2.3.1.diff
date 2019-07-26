@@ -1,0 +1,550 @@
+diff --git a/RbDiffApp/.gitattributes b/RbDiffApp/.gitattributes
+index 783ceaa..4e1be9d 100644
+--- a/RbDiffApp/.gitattributes
++++ b/RbDiffApp/.gitattributes
+@@ -1,4 +1,4 @@
+-# From https://github.com/Danimoth/gitattributes/blob/master/Web.gitattributes
++# These settings are for any web project
+ 
+ # Handle line endings automatically for files detected as text
+ # and leave all files detected as binary untouched.
+@@ -103,4 +103,4 @@ AUTHORS text
+ *.eot binary
+ *.woff binary
+ *.pyc binary
+-*.pdf binary
++*.pdf binary
+\ No newline at end of file
+diff --git a/RbDiffApp/FILE-APPENDIX.md b/RbDiffApp/FILE-APPENDIX.md
+deleted file mode 100644
+index ea6374c..0000000
+--- a/RbDiffApp/FILE-APPENDIX.md
++++ /dev/null
+@@ -1,31 +0,0 @@
+-# Files in the root folder
+-
+-* `.babelrc`: The Babel configuration. Babel is a ES6 to ES5 JavaScript transpiler, which means it's the tool that allows us to use ES6 in our applications.
+-
+-* `.eslintignore`: Tell `eslint`, the JavaScript linter I have installed in my IDE (and you should too) to ignore certain files I don't want to have linted. Linting a file means to check that the syntax of the language is correct, which helps us catch typos/structural errors before we get an error in the browser console.
+-
+-* `.eslintrc`: The `eslint` configuration, which checks that the JavaScript files are written in my preferred way of writing JS.
+-
+-* `.gitattributes`: Normalizes how `git`, the version control system this boilerplate uses, handles certain files.
+-
+-* `.gitignore`: Tells `git` to ignore certain files and folders which don't need to be version controlled, like the build folder.
+-
+-* `.htaccess`: A default server configuration for a single page applications for the Apache web server. See the [`README`](README.md) for more information.
+-
+-* `index.html`: The HTML file that your web application uses.
+-
+-* `makewebpackconfig.js`: Generates the webpack configuration based on the environment. If we're in development, we add hot reloading and don't minify our code. If we're in production, we minify everything.
+-
+-  * `webpack.dev.config.js`: Calls `makewebpackconfig.js`, setting the environment to `development`.
+-
+-  * `webpack.prod.config.js`: Calls `makewebpackconfig.js`, setting the environment to `production`.
+-
+-* `manifest.json`: Adds `Add to Homescreen` functionality on specific mobile phones. See the [`README`](README.md) for more information.
+-
+-* `package.json`: `npm`, the package manager this boilerplate uses, specifies the dependencies and tools we use in this file. When you run `npm install`, this is the list that tells `npm` which packages/libraries to download. Also, `npm start`, `npm run build`,... commands are specified here.
+-
+-* `server.js`: The development server, which allows us to go to `localhost:3000` and see the application live. Also makes hot-reloading work.
+-
+-* `serviceworker.js`: The script that tells the serviceworker how to cache our files.
+-
+-  * `serviceworker-cache-polyfill.js`: A polyfill for the `ServiceWorker` cache, which isn't yet fully supported everywhere. (See [https://jakearchibald.com/2014/using-serviceworker-today/](here) for more information)
+diff --git a/RbDiffApp/README.md b/RbDiffApp/README.md
+index 5effd85..1ce8293 100644
+--- a/RbDiffApp/README.md
++++ b/RbDiffApp/README.md
+@@ -38,6 +38,10 @@ Quick setup for new performance orientated, offline–first React.js application
+ 
+ 2. Upload the contents of the `build` folder to your web server.
+ 
++3. ?????? (You figure this part out)
++
++4. Profit!
++
+ ### Server Configuration
+ 
+ #### Apache
+@@ -50,61 +54,81 @@ This boilerplate includes a `.htaccess` file that does two things:
+ 
+ ## CSS
+ 
+-The CSS modules found in the `css` subfolders all get imported into one big file (`main.css`), which gets transpiled with PostCSS.
++The CSS modules found in the `css` subfolders all get imported into the `main.css` file, which get inlined and minified into the `compiled.css` file. To add/change the styling, either write the CSS into the appropriate module or make a new one and `@import` it in the `main.css` file at the appropriate place.
+ 
+-To add/change styling, either add to an existing file or make a new one and `@import` it in the `main.css` file.
++### PostCSS Plugins
+ 
+-See the [`css` folder README](css/README.md) for more information about the PostCSS plugins used and the CSS structure.
++The boilerplate uses PostCSS, and includes a few plugins by default:
+ 
+-## JS
++* `postcss-import`: Inlines `@import`ed stylesheets to create one big stylesheet.
+ 
+-All files that are `import`ed/`require`d somewhere get compiled into one big file at build time. (`build/bundle.js`) Webpack automatically optimizes your JavaScript with `UglifyJS`, so you don't have to worry about that.
++* `postcss-simple-vars`: Makes it possible to use `$variables in your CSS.
+ 
+-See the [`js` folder README](js/README.md) for more information about the JS structure.
++* `postcss-focus`: Adds a `:focus` selector to every `:hover`.
+ 
+-## Testing
++* `autoprefixer-core`: Prefixes your CSS automatically, supporting the last two versions of all major browsers and IE 8 and up.
+ 
+-Unit tests live in the `test` directory, and are run with `npm test`. There are two files in there already, testing that the current AppActions and Reducers are working correctly. Should you be stuck and have no idea what is going on check out the official [Mocha documentation](http://mochajs.org)!
++* `cssnano`: Optimizes your CSS file. For a full list of optimizations check [the offical website](http://cssnano.co/optimisations/).
+ 
+-## Files in the root folder
++* `postcss-reporter`: Makes warnings by the above plugins visible in the console.
+ 
+-For a full explanation of all files in the root folder, see [`FILE-APPENDIX.md`](FILE-APPENDIX.md).
++For a full, searchable catalog of plugins go to [postcss.parts](http://postcss.parts).
+ 
+-## Opinionated features
++### Folder Structure
+ 
+-### Web Fonts
++The boilerplate comes with a basic folder structure to keep the CSS files organised. This is what the folders are for:
+ 
+-If you simply use web fonts in your project, the page will stay blank until these fonts are downloaded. That means a lot of waiting time in which users could already read the content.
++* `base`: Global styling, e.g. setting the box–model for all elements
+ 
+-[FontFaceObserver](https://github.com/bramstein/fontfaceobserver) adds a `js-<font-name>-loaded` class to the `body` when the fonts have loaded. You should specify an initial `font-family` with save fonts on the `body`, and a `.js-<font-name>-loaded` `font-family` which includes your web font. See [app.js](js/app.js#L17-L25) and [base.css](css/base/_base.css#L26-L32).
++* `components`: Component specific styling, e.g. buttons, modals,...
+ 
+-#### Adding a new font
++* `layout`: Global layouts, e.g. article, homepage,...
+ 
+-1. Either add the `@font-face` declaration to `base/_fonts.css` or add a `<link>` tag to the [`index.html`](index.html). (Don't forget to remove the `<link>` for Open Sans from the [`index.html`](index.html))
++* `utils`: Utility files, e.g. variables, mixins, functions,...
+ 
+-2. In `base/_base.css`, specify your initial `font-family` in the `body` tag with only save fonts. In the `body.js-<font-name>-loaded` tag, specify your `font-family` stack with your web font.
++* `vendor`: External files, e.g. a CSS reset
+ 
+-3. In `js/app.js` add a `<font-name>Observer` for your font.
++## JS
+ 
+-#### Removing performant web font loading
++All files that are `import`ed/`require`d somewhere get compiled into one big file at build time. (`build/bundle.js`) Webpack automatically optimizes your JavaScript with `UglifyJS`, so you do not have to worry about that.
+ 
+-**Careful** about removing this, as perceived performance might be highly impacted.
++### Folder Structure
+ 
+-To remove `FontFaceObserver`, don't import it in [`app.js`](js/app.js) and remove it from the [`package.json`](package.json).
++The folder structure of the JS files reflects how [Redux](https://github.com/gaearon/redux) works, so if you are not familiar with Redux check out the [official documentation](https://gaearon.github.io/redux/).
+ 
+-### Offline access
++* `actions`: Actions get dispatched with this/these utility module(s)
++
++* `components`: The main JS folder. All your React components should be in this folder, for big projects they might be grouped into seperate subfolders. E.g. a navigation component `Nav.react.js`
++
++* `components/pages`: Actual pages (routes) users can visit.
++
++* `constants`: Action constants need to be defined in this/these utility module(s)
++
++* `reducers`: Reducers manage the state of an app, basically a simplified implementation of Stores in Flux. For an introduction to reducers, watch [this talk](https://www.youtube.com/watch?v=xsSnOQynTHs) by @gaearon.
+ 
+-Using a `ServiceWorker` and the `Application Cache`, your application is cached for offline usage.
++## Testing
+ 
+-#### Cache a new file
++Unit tests live in the `test` directory, and are run with `npm test`. There are two files in there already, testing that the current AppActions and Reducers are working correctly. Should you be stuck and have no idea what is going on check out the official [Mocha documentation](http://mochajs.org)!
+ 
+-To cache a file, add it to the `urlsToCache` variable in the [`serviceworker.js`](serviceworker.js) file.
++## Opinionated features
+ 
+-#### Removing offline access
++### Web Fonts
+ 
+-**Careful** about removing this, as there is no real downside to having your application available when the users network connection isn't perfect.
++If you simply use web fonts in your project, the page will stay blank until these fonts are downloaded. That means a lot of waiting time in which users could already read the content.
+ 
+-To remove offline capability, delete [`serviceworker.js`](serviceworker.js) and [`serviceworker-cache-polyfill.js`](serviceworker-cache-polyfill.js), don't import them in the [`app.js`](js/app.js), remove `AppCachePlugin` in [`makewebpackconfig.js`](makewebpackconfig.js) and remove the `manifest` attribute of the `<html>` tag in [`index.html`](index.html).
++[FontFaceObserver](https://github.com/bramstein/fontfaceobserver) adds a `js-<font-name>-loaded` class to the `body` when the fonts have loaded. You should specify an initial `font-family` with save fonts, and a `.js-<font-name>-loaded` `font-family` which includes your web font.
++
++#### Adding a new font
++
++1. Add the `@font-face` declaration to `base/_fonts.css`.
++
++2. In `base/_base.css`, specify your initial `font-family` in the `body` tag with only save fonts. In the `body.js-<font-name>-loaded` tag, specify your `font-family` stack with your web font.
++
++3. In `js/app.js` add a `<font-name>Observer` for your font.
++
++### Offline access
++
++Using a `ServiceWorker` and the `App Cache`, your application is cached for offline usage. TO cache a file, add it to `cache` variable of the `AppCachePlugin` in `webpack.build.config.js` and to the `urlsToCache` variable in the `serviceworker.js` file.
+ 
+ ### Add To Homescreen
+ 
+@@ -112,10 +136,6 @@ On Chrome for Android (soon hopefully more browsers), users can add a webpage to
+ 
+ The name and icon to be displayed are set in the `manifest.json` file. Change them to your project name and icon, and try it!
+ 
+-#### Removing add to homescreen functionality
+-
+-Delete [`manifest.json`](manifest.json) and remove the `<link rel="manifest" href="manifest.json">` tag from the [`index.html`](index.html).
+-
+ ## Gotchas
+ 
+ These are some things to be aware of when using this boilerplate.
+diff --git a/RbDiffApp/css/README.md b/RbDiffApp/css/README.md
+deleted file mode 100644
+index cd63ef9..0000000
+--- a/RbDiffApp/css/README.md
++++ /dev/null
+@@ -1,35 +0,0 @@
+-# `css`
+-
+-## PostCSS Plugins
+-
+-The boilerplate uses PostCSS, and includes a few plugins by default:
+-
+-* `postcss-import`: Inlines `@import`ed stylesheets to create one big stylesheet.
+-
+-* `postcss-simple-vars`: Makes it possible to use `$variables in your CSS.
+-
+-* `postcss-focus`: Adds a `:focus` selector to every `:hover`.
+-
+-* `autoprefixer-core`: Prefixes your CSS automatically, supporting the last two versions of all major browsers and IE 8 and up.
+-
+-* `cssnano`: Optimizes your CSS file. For a full list of optimizations check [the offical website](http://cssnano.co/optimisations/).
+-
+-* `postcss-reporter`: Makes warnings by the above plugins visible in the console.
+-
+-For a full, searchable catalog of plugins go to [postcss.parts](http://postcss.parts).
+-
+-## Folder structure
+-
+-The boilerplate comes with a basic folder structure to keep the CSS files organised. This is what the folders are for:
+-
+-* `base`: Global styling, e.g. setting the box–model for all elements
+-
+-* `components`: Component specific styling, e.g. buttons, modals,...
+-
+-* `layout`: Global layouts, e.g. article, homepage,...
+-
+-* `utils`: Utility files, e.g. variables, mixins, functions,...
+-
+-* `vendor`: External files, e.g. a CSS reset
+-
+-* `main.css`: All CSS files from the above directories are `@import`ed into this file and inlined with `postcss-import`.
+diff --git a/RbDiffApp/css/base/_fonts.css b/RbDiffApp/css/base/_fonts.css
+index 39f7926..2cbc83b 100644
+--- a/RbDiffApp/css/base/_fonts.css
++++ b/RbDiffApp/css/base/_fonts.css
+@@ -1 +1,29 @@
+ /* This file contains all @font-face declarations, if any. */
++
++/*
++ * Open Sans
++ */
++/* BEGIN Regular */
++@font-face {
++  font-family: 'Open Sans';
++  src: url("./fonts/Regular/OpenSans-Regular.eot?v=1.1.0");
++  src: url("./fonts/Regular/OpenSans-Regular.eot?#iefix&v=1.1.0") format("embedded-opentype"), url("./fonts/Regular/OpenSans-Regular.woff2?v=1.1.0") format("woff2"), url("./fonts/Regular/OpenSans-Regular.woff?v=1.1.0") format("woff"), url("./fonts/Regular/OpenSans-Regular.ttf?v=1.1.0") format("truetype"), url("./fonts/Regular/OpenSans-Regular.svg?v=1.1.0#Regular") format("svg");
++  font-weight: normal;
++  font-style: normal; }
++/* END Regular */
++/* BEGIN Italic */
++@font-face {
++  font-family: 'Open Sans';
++  src: url("./fonts/Italic/OpenSans-Italic.eot?v=1.1.0");
++  src: url("./fonts/Italic/OpenSans-Italic.eot?#iefix&v=1.1.0") format("embedded-opentype"), url("./fonts/Italic/OpenSans-Italic.woff2?v=1.1.0") format("woff2"), url("./fonts/Italic/OpenSans-Italic.woff?v=1.1.0") format("woff"), url("./fonts/Italic/OpenSans-Italic.ttf?v=1.1.0") format("truetype"), url("./fonts/Italic/OpenSans-Italic.svg?v=1.1.0#Italic") format("svg");
++  font-weight: normal;
++  font-style: italic; }
++/* END Italic */
++/* BEGIN Bold */
++@font-face {
++  font-family: 'Open Sans';
++  src: url("./fonts/Bold/OpenSans-Bold.eot?v=1.1.0");
++  src: url("./fonts/Bold/OpenSans-Bold.eot?#iefix&v=1.1.0") format("embedded-opentype"), url("./fonts/Bold/OpenSans-Bold.woff2?v=1.1.0") format("woff2"), url("./fonts/Bold/OpenSans-Bold.woff?v=1.1.0") format("woff"), url("./fonts/Bold/OpenSans-Bold.ttf?v=1.1.0") format("truetype"), url("./fonts/Bold/OpenSans-Bold.svg?v=1.1.0#Bold") format("svg");
++  font-weight: bold;
++  font-style: normal; }
++/* END Bold */
+\ No newline at end of file
+diff --git a/RbDiffApp/index.html b/RbDiffApp/index.html
+index 808ce72..7acf97e 100644
+--- a/RbDiffApp/index.html
++++ b/RbDiffApp/index.html
+@@ -11,8 +11,7 @@
+ 	<body>
+ 		<!-- The app hooks into this div -->
+ 		<div id="app"></div>
+-		<!-- Open Sans Font -->
+-		<link href="https://fonts.googleapis.com/css?family=Open+Sans:400,700" rel="stylesheet">
+-		<!-- Due to the way webpack works, a lot of magic happens in this file. HtmlWebpackPlugin automatically includes all assets (e.g. bundle.js, main.css) with the correct HTML tags, which is why they are missing in this HTML file. Check out webpackconfig.js if you want to know more. -->
++		<!-- The JavaScript bundle -->
++		<script src="js/bundle.js"></script>
+ 	</body>
+ </html>
+diff --git a/RbDiffApp/js/README.md b/RbDiffApp/js/README.md
+deleted file mode 100644
+index 40cefc2..0000000
+--- a/RbDiffApp/js/README.md
++++ /dev/null
+@@ -1,17 +0,0 @@
+-# `js`
+-
+-## Folder Structure
+-
+-The folder structure of the JS files reflects how [Redux](https://github.com/gaearon/redux) works, so if you are not familiar with Redux check out the [official documentation](https://gaearon.github.io/redux/).
+-
+-* `actions`: Actions get dispatched with this/these utility module(s)
+-
+-* `components`: The main JS folder. All your React components should be in this folder, for big projects they might be grouped into seperate subfolders. E.g. a navigation component `Nav.react.js`
+-
+-* `components/pages`: Actual pages (routes) users can visit.
+-
+-* `constants`: Action constants need to be defined in this/these utility module(s)
+-
+-* `reducers`: Reducers manage the state of an app, basically a simplified implementation of Stores in Flux. For an introduction to reducers, watch [this talk](https://www.youtube.com/watch?v=xsSnOQynTHs) by @gaearon.
+-
+-* `app.js`: The entry point of the application. Mostly setup and boilerplate code. Routes are configured in the JSX here!
+diff --git a/RbDiffApp/js/actions/AppActions.js b/RbDiffApp/js/actions/AppActions.js
+index ed499d4..2fef902 100644
+--- a/RbDiffApp/js/actions/AppActions.js
++++ b/RbDiffApp/js/actions/AppActions.js
+@@ -43,10 +43,10 @@ export function asyncChangeOwnerName(name) {
+   }
+ }
+ 
+-export function changeProjectName(name) {
++function changeProjectName(name) {
+   return { type: CHANGE_PROJECT_NAME, name };
+ }
+ 
+-export function changeOwnerName(name) {
++function changeOwnerName(name) {
+   return { type: CHANGE_OWNER_NAME, name };
+ }
+diff --git a/RbDiffApp/js/app.js b/RbDiffApp/js/app.js
+index 96d8231..976c0ce 100644
+--- a/RbDiffApp/js/app.js
++++ b/RbDiffApp/js/app.js
+@@ -1,17 +1,7 @@
+-/**
+- *
+- * app.js
+- *
+- * This is the entry file for the application, mostly just setup and boilerplate
+- * code. Routes are configured at the end of this file!
+- *
+- */
+-
+-// Load the ServiceWorker, the Cache polyfill, the manifest.json file and the .htaccess file
+ import 'file?name=[name].[ext]!../serviceworker.js';
+ import 'file?name=[name].[ext]!../serviceworker-cache-polyfill.js';
+ import 'file?name=[name].[ext]!../manifest.json';
+-import 'file?name=[name].[ext]!../.htaccess';
++import FontFaceObserver from 'fontfaceobserver';
+ 
+ // Check for ServiceWorker support before trying to install it
+ if ('serviceWorker' in navigator) {
+@@ -24,6 +14,16 @@ if ('serviceWorker' in navigator) {
+   // No ServiceWorker Support
+ }
+ 
++// Observer loading of Open Sans
++const openSansObserver = new FontFaceObserver('Open Sans', {});
++
++// When Open Sans is loaded, add the js-open-sans-loaded class to the body
++openSansObserver.check().then(() => {
++  document.body.classList.add('js-open-sans-loaded');
++}, () => {
++  document.body.classList.remove('js-open-sans-loaded');
++});
++
+ // Import all the third party stuff
+ import React from 'react';
+ import ReactDOM from 'react-dom';
+@@ -32,42 +32,30 @@ import thunk from 'redux-thunk';
+ import { Provider } from 'react-redux';
+ import { homeReducer } from './reducers/reducers';
+ import { Router, Route } from 'react-router';
+-import FontFaceObserver from 'fontfaceobserver';
+ import createHistory from 'history/lib/createBrowserHistory';
+ 
+-// Observer loading of Open Sans (to remove open sans, remove the <link> tag in the index.html file and this observer)
+-const openSansObserver = new FontFaceObserver('Open Sans', {});
+-
+-// When Open Sans is loaded, add the js-open-sans-loaded class to the body
+-openSansObserver.check().then(() => {
+-  document.body.classList.add('js-open-sans-loaded');
+-}, () => {
+-  document.body.classList.remove('js-open-sans-loaded');
+-});
+-
+-// Import the pages
++// Import the custom components
+ import HomePage from './components/pages/HomePage.react';
+ import ReadmePage from './components/pages/ReadmePage.react';
+-import NotFoundPage from './components/pages/NotFound.react';
+ import App from './components/App.react';
+ 
+-// Import the CSS file, which HtmlWebpackPlugin transfers to the build folder
++// Import the CSS file, which webpack transfers to the build folder
+ import '../css/main.css';
+ 
+ // Creates the Redux reducer with the redux-thunk middleware, which allows us
+-// to do asynchronous things in the actions
++// to do asynchronous stuff in the actions
+ const createStoreWithMiddleware = applyMiddleware(thunk)(createStore);
+ const store = createStoreWithMiddleware(homeReducer);
+ 
+-// Mostly boilerplate, except for the Routes. These are the pages you can go to,
+-// which are all wrapped in the App component, which contains the navigation etc
++// Provider: Redux
++// Router: redux-router
++// HomePage/ReadmePage: Custom Components, see js/components folder
+ ReactDOM.render(
+   <Provider store={store}>
+     <Router history={createHistory()}>
+       <Route component={App}>
+         <Route path="/" component={HomePage} />
+         <Route path="/readme" component={ReadmePage} />
+-        <Route path="*" component={NotFoundPage} />
+       </Route>
+     </Router>
+   </Provider>,
+diff --git a/RbDiffApp/js/components/pages/NotFound.react.js b/RbDiffApp/js/components/pages/NotFound.react.js
+deleted file mode 100644
+index 3e9a930..0000000
+--- a/RbDiffApp/js/components/pages/NotFound.react.js
++++ /dev/null
+@@ -1,15 +0,0 @@
+-import React, { Component } from 'react';
+-import { Link } from 'react-router';
+-
+-class NotFound extends Component {
+-  render() {
+-    return(
+-      <article>
+-        <h1>Page not found.</h1>
+-        <Link to="/" className="btn">Home</Link>
+-      </article>
+-    );
+-  }
+-}
+-
+-export default NotFound;
+diff --git a/RbDiffApp/makewebpackconfig.js b/RbDiffApp/makewebpackconfig.js
+index 3210222..2d07b7b 100644
+--- a/RbDiffApp/makewebpackconfig.js
++++ b/RbDiffApp/makewebpackconfig.js
+@@ -2,7 +2,6 @@ var path = require('path');
+ var webpack = require('webpack');
+ var HtmlWebpackPlugin = require('html-webpack-plugin');
+ var AppCachePlugin = require('appcache-webpack-plugin');
+-var ExtractTextPlugin = require("extract-text-webpack-plugin");
+ 
+ module.exports = function(options) {
+   var entry, jsLoaders, plugins, cssLoaders;
+@@ -13,7 +12,7 @@ module.exports = function(options) {
+     entry = [
+       path.resolve(__dirname, 'js/app.js') // Start with js/app.js...
+     ];
+-    cssLoaders = ExtractTextPlugin.extract('style-loader', 'css-loader!postcss-loader');
++    cssLoaders = ['file-loader?name=[path][name].[ext]', 'postcss-loader'];
+     // Plugins
+     plugins = [// Plugins for Webpack
+       new webpack.optimize.UglifyJsPlugin({ // Optimize the JavaScript...
+@@ -23,7 +22,7 @@ module.exports = function(options) {
+       }),
+       new HtmlWebpackPlugin({
+         template: 'index.html', // Move the index.html file...
+-        minify: { // Minifying it while it is parsed
++        minify: { // Minifying it while it is parsed using the following, self–explanatory options
+           removeComments: true,
+           collapseWhitespace: true,
+           removeRedundantAttributes: true,
+@@ -34,11 +33,9 @@ module.exports = function(options) {
+           minifyJS: true,
+           minifyCSS: true,
+           minifyURLs: true
+-        },
+-        inject: true // inject all files that are generated by webpack, e.g. bundle.js, main.css with the correct HTML tags
++        }
+       }),
+-      new AppCachePlugin(),
+-      new ExtractTextPlugin("css/main.css")
++      new AppCachePlugin()
+     ];
+ 
+   // If app is in development
+@@ -49,14 +46,10 @@ module.exports = function(options) {
+       "webpack/hot/only-dev-server", // See above
+       path.resolve(__dirname, 'js/app.js') // Start with js/app.js...
+     ];
+-    cssLoaders = 'style-loader!css-loader!postcss-loader';
++    cssLoaders = ['style-loader', 'css-loader', 'postcss-loader'];
+     // Only plugin is the hot module replacement plugin
+     plugins = [
+       new webpack.HotModuleReplacementPlugin(), // Make hot loading work
+-      new HtmlWebpackPlugin({
+-        template: 'index.html', // Move the index.html file
+-        inject: true // inject all files that are generated by webpack, e.g. bundle.js, main.css with the correct HTML tags
+-      }),
+       new AppCachePlugin()
+     ]
+   }
+@@ -74,7 +67,7 @@ module.exports = function(options) {
+           exclude: path.join(__dirname, '/node_modules/') // ...except for the node_modules folder.
+         }, {
+           test:   /\.css$/, // Transform all .css files required somewhere within an entry point...
+-          loader: cssLoaders // ...with PostCSS
++          loaders: cssLoaders // ...with PostCSS
+         }, {
+           test: /\.jpe?g$|\.gif$|\.png$/i,
+           loader: "url-loader?limit=10000"
+diff --git a/RbDiffApp/package.json b/RbDiffApp/package.json
+index cb3fb51..04edd85 100644
+--- a/RbDiffApp/package.json
++++ b/RbDiffApp/package.json
+@@ -1,6 +1,6 @@
+ {
+   "name": "reactjs-boilerplate",
+-  "version": "2.4.0",
++  "version": "2.3.1",
+   "description": "Quick setup for new React.js applications featuring Redux, hot–reloading, PostCSS, react-router and Mocha.",
+   "dependencies": {
+     "fontfaceobserver": "^1.5.1",
+@@ -26,7 +26,6 @@
+     "eslint-config-airbnb": "1.0.0",
+     "eslint-plugin-react": "^3.3.2",
+     "expect": "^1.10.0",
+-    "extract-text-webpack-plugin": "0.9.1",
+     "file-loader": "^0.8.4",
+     "html-webpack-plugin": "^1.6.1",
+     "json-loader": "^0.5.2",
+@@ -49,8 +48,8 @@
+   },
+   "scripts": {
+     "test": "mocha --compilers js:babel/register --recursive",
+-    "start": "NODE_ENV=development node server.js",
+-    "build": "npm run test && NODE_ENV=production webpack --config webpack.prod.config.js --progress --colors -p"
++    "start": "NODE_ENV=development && node server.js",
++    "build": "npm run test && NODE_ENV=production && webpack --config webpack.prod.config.js --progress --colors -p"
+   },
+   "author": "Max Stoiber",
+   "license": "MIT"
+diff --git a/RbDiffApp/serviceworker.js b/RbDiffApp/serviceworker.js
+index 96d5898..b293662 100644
+--- a/RbDiffApp/serviceworker.js
++++ b/RbDiffApp/serviceworker.js
+@@ -4,7 +4,6 @@ var CACHE_NAME = 'react-boilerplate-cache-v1';
+ // The files we want to cache
+ var urlsToCache = [
+   '/',
+-  '/css/main.css',
+   '/js/bundle.js'
+ ];
+ 
+@@ -61,4 +60,4 @@ self.addEventListener('fetch', function(event) {
+         );
+       })
+     );
+-});
++});
+\ No newline at end of file
