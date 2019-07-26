@@ -1,0 +1,62 @@
+diff --git a/RbDiffApp/internals/config.js b/RbDiffApp/internals/config.js
+index f1881b6..6bb249c 100644
+--- a/RbDiffApp/internals/config.js
++++ b/RbDiffApp/internals/config.js
+@@ -4,7 +4,7 @@ const uniq = require('lodash/uniq');
+ 
+ const ReactBoilerplate = {
+   // This refers to the react-boilerplate version this project is based on.
+-  version: '3.3.1:',
++  version: '3.3.0',
+ 
+   /**
+    * The DLL Plugin provides a dramatic speed increase to webpack build and hot module reloading
+diff --git a/RbDiffApp/internals/scripts/clean.js b/RbDiffApp/internals/scripts/clean.js
+index cd33929..cd53c99 100644
+--- a/RbDiffApp/internals/scripts/clean.js
++++ b/RbDiffApp/internals/scripts/clean.js
+@@ -1,5 +1,5 @@
+ require('shelljs/global');
+-const addCheckMark = require('./helpers/checkmark.js');
++const addCheckMark = require('./helpers/checkmark.js'); 
+ 
+ if (!which('git')) {
+   echo('Sorry, this script requires git');
+@@ -22,7 +22,6 @@ mkdir('-p', 'app/containers/App');
+ mkdir('-p', 'app/containers/NotFoundPage');
+ mkdir('-p', 'app/containers/HomePage');
+ cp('internals/templates/appContainer.js', 'app/containers/App/index.js');
+-cp('internals/templates/constants.js', 'app/containers/App/constants.js');
+ cp('internals/templates/notFoundPage/notFoundPage.js', 'app/containers/NotFoundPage/index.js');
+ cp('internals/templates/notFoundPage/messages.js', 'app/containers/NotFoundPage/messages.js');
+ cp('internals/templates/homePage/homePage.js', 'app/containers/HomePage/index.js');
+diff --git a/RbDiffApp/internals/templates/constants.js b/RbDiffApp/internals/templates/constants.js
+deleted file mode 100644
+index 172ef76..0000000
+--- a/RbDiffApp/internals/templates/constants.js
++++ /dev/null
+@@ -1,12 +0,0 @@
+-/*
+- * AppConstants
+- * Each action has a corresponding type, which the reducer knows and picks up on.
+- * To avoid weird typos between the reducer and the actions, we save them as
+- * constants here. We prefix them with 'yourproject/YourComponent' so we avoid
+- * reducers accidentally picking up actions they shouldn't.
+- *
+- * Follow this format:
+- * export const YOUR_ACTION_CONSTANT = 'yourproject/YourContainer/YOUR_ACTION_CONSTANT';
+- */
+-
+-export const DEFAULT_LOCALE = 'en';
+diff --git a/RbDiffApp/package.json b/RbDiffApp/package.json
+index 834bfd5..5eccb62 100644
+--- a/RbDiffApp/package.json
++++ b/RbDiffApp/package.json
+@@ -1,6 +1,6 @@
+ {
+   "name": "react-boilerplate",
+-  "version": "3.3.1",
++  "version": "3.3.0",
+   "description": "A highly scalable, offline-first foundation with the best DX and a focus on performance and best practices",
+   "repository": {
+     "type": "git",
