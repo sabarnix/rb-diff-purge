@@ -1,0 +1,104 @@
+diff --git a/RbDiffApp/js/actions/AppActions.js b/RbDiffApp/js/actions/AppActions.js
+index 618d3e8..a9200dc 100644
+--- a/RbDiffApp/js/actions/AppActions.js
++++ b/RbDiffApp/js/actions/AppActions.js
+@@ -1,27 +1,9 @@
+ import { CHANGE_OWNER_NAME, CHANGE_PROJECT_NAME } from '../constants/AppConstants';
+ 
+-export function asyncChangeProjectName(name) {
+-  return function(dispatch) {
+-    // You can do async stuff here!
+-    // API fetching, Animations,...
+-    // For more information as to how and why you would do this, check https://github.com/gaearon/redux-thunk
+-    return dispatch(changeProjectName(name));
+-  }
+-}
+-
+-export function asyncChangeOwnerName(name) {
+-  return function(dispatch) {
+-    // You can do async stuff here!
+-    // API fetching, Animations,...
+-    // For more information as to how and why you would do this, check https://github.com/gaearon/redux-thunk
+-    return dispatch(changeOwnerName(name));
+-  }
+-}
+-
+-function changeProjectName(name) {
++export function changeProjectName(name) {
+   return { type: CHANGE_PROJECT_NAME, name };
+ }
+ 
+-function changeOwnerName(name) {
++export function changeOwnerName(name) {
+   return { type: CHANGE_OWNER_NAME, name };
+ }
+diff --git a/RbDiffApp/js/app.js b/RbDiffApp/js/app.js
+index c4714f4..6f67123 100644
+--- a/RbDiffApp/js/app.js
++++ b/RbDiffApp/js/app.js
+@@ -25,8 +25,7 @@ openSansObserver.check().then(() => {
+ 
+ import React from 'react';
+ import ReactDOM from 'react-dom';
+-import { createStore, applyMiddleware } from 'redux';
+-import thunk from 'redux-thunk';
++import { createStore } from 'redux';
+ import { Provider } from 'react-redux';
+ import { homeReducer } from './reducers/reducers';
+ import { Router, Route } from 'react-router';
+@@ -37,9 +36,7 @@ import ReadmePage from './components/ReadmePage.react';
+ 
+ import '../css/main.css';
+ 
+-const createStoreWithMiddleware = applyMiddleware(thunk)(createStore);
+-
+-const store = createStoreWithMiddleware(homeReducer);
++const store = createStore(homeReducer);
+ 
+ ReactDOM.render(
+   <Provider store={store}>
+diff --git a/RbDiffApp/js/components/HomePage.react.js b/RbDiffApp/js/components/HomePage.react.js
+index 7a95321..fda5874 100644
+--- a/RbDiffApp/js/components/HomePage.react.js
++++ b/RbDiffApp/js/components/HomePage.react.js
+@@ -1,4 +1,4 @@
+-import { asyncChangeProjectName, asyncChangeOwnerName } from '../actions/AppActions';
++import { changeProjectName, changeOwnerName } from '../actions/AppActions';
+ import React, { Component } from 'react';
+ import { connect } from 'react-redux';
+ import { Link } from 'react-router';
+@@ -13,10 +13,10 @@ class HomePage extends Component {
+ 				<h1>Hello World!</h1>
+         <h2>This is the demo for the <span className="home__text--red">{ projectName }</span> by <a href={'https://twitter.com/' + ownerName} >@{ ownerName }</a></h2>
+         <label className="home__label">Change to your project name:
+-				  <input className="home__input" type="text" onChange={(evt) => { dispatch(asyncChangeProjectName(evt.target.value)); }} defaultValue="React.js Boilerplate" value={projectName} />
++				  <input className="home__input" type="text" onChange={(evt) => { dispatch(changeProjectName(evt.target.value)); }} defaultValue="React.js Boilerplate" placeholder={projectName} />
+         </label>
+         <label className="home__label">Change to your name:
+-          <input className="home__input" type="text" onChange={(evt) => { dispatch(asyncChangeOwnerName(evt.target.value)); }} defaultValue="mxstbr" value={ownerName} />
++          <input className="home__input" type="text" onChange={(evt) => { dispatch(changeOwnerName(evt.target.value)); }} defaultValue="mxstbr" placeholder={projectName} />
+         </label>
+         <Link className="btn" to="/readme">Setup</Link>
+ 			</div>
+diff --git a/RbDiffApp/package.json b/RbDiffApp/package.json
+index b8b6da0..93ab765 100644
+--- a/RbDiffApp/package.json
++++ b/RbDiffApp/package.json
+@@ -1,6 +1,6 @@
+ {
+   "name": "reactjs-boilerplate",
+-  "version": "2.3.0",
++  "version": "2.2.1",
+   "description": "Quick setup for new React.js applications featuring Redux, hot–reloading, PostCSS, react-router and Mocha.",
+   "dependencies": {
+     "fontfaceobserver": "^1.5.1",
+@@ -9,8 +9,7 @@
+     "react-dom": "^0.14.2",
+     "react-redux": "^4.0.0",
+     "react-router": "^1.0.0",
+-    "redux": "^3.0.0",
+-    "redux-thunk": "^1.0.0"
++    "redux": "^3.0.0"
+   },
+   "devDependencies": {
+     "appcache-webpack-plugin": "^1.2.0",
